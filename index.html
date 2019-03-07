@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>RDAP Web Client</title>
+<style>
+html,body,p,table,tr,td,th,ul,ol,li,input,select,input,button {
+	font-family: "Helvetica", "Arial", sans;
+	font-weight: 200;
+	font-size: 11pt;
+}
+td,th {
+	vertical-align:top;
+}
+ul,ol {
+	margin:0;
+	padding: 0 0 0 1em;
+}
+td,th {
+	padding:0.25em;
+}
+fieldset {
+	margin:0 0 1em 0;
+}
+pre {
+	margin:0;
+}
+</style>
+<script>
+
+// keeps track of the elements we've created so we can assign a unique ID
+var elementCounter = 123456;
+
+// event handler for when the query type changes
+function updatePlaceHolder(type) {
+	var input = document.getElementById('object');
+
+	switch (type) {
+		case 'ip':
+			input.placeholder = '192.168.0.1/16';
+			break;
+
+		case 'autnum':
+			input.placeholder = '65535';
+			break;
+
+		case 'entity':
+			input.placeholder = 'ABC123-EXAMPLE';
+			break;
+
+		case 'url':
+			input.placeholder = 'https://rdap.org/domain/example.com';
+			break;
+
+		case 'tld':
+			input.placeholder = 'example';
+			break;
+
+		case 'registrar':
+			input.placeholder = '9999';
+			break;
+
+		default:		
+			input.placeholder = 'example.com';
+	}
+}
+
+// event handler for when the submit button is pressed, or
+// when the user clicks on a link to an RDAP URL
+function doQuery() {
+	var type = document.getElementById('type');
+	var typeval = type.options[type.selectedIndex].value;
+	var object = document.getElementById('object').value;
+
+	var url;
+	if ('url' == typeval) {
+		url = object;
+
+	} else if ('tld' == typeval) {
+		url = 'https://root.rdap.org/domain/' + object;
+
+	} else if ('registrar' == typeval) {
+		url = 'https://registrars.rdap.org/entity/' + object + '-IANA';
+
+	} else {
+		url = 'https://rdap.org/' + typeval + '/' + object;
+
+	}
+
+	sendQuery(url);
+}
+
+// given a URL, injects that URL into the query input,
+// and initiates an RDAP query
+function runQuery(url) {
+	var type = document.getElementById('type');
+	var i;
+	for (i = 0 ; i < type.options.length ; i++) {
+		if ('url' == type.options[i].value) {
+			type.selectedIndex = i;
+		}
+	}
+	document.getElementById('object').value = url;
+	doQuery();
+}
+
+// disable the user interface, initiate an XHR
+function sendQuery(url) {
+	document.getElementById('type').disabled = true;
+	document.getElementById('object').disabled = true;
+	document.getElementById('button').disabled = true;
+
+	var div = document.getElementById('output-div');
+	div.innerHTML = '';
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', url);
+	xhr.timeout = 10000;
+
+	xhr.ontimeout = function() {
+		document.getElementById('type').disabled = false;
+		document.getElementById('object').disabled = false;
+		document.getElementById('button').disabled = false;
+
+		el = document.createElement('p');
+		el.style.className = 'error';
+		el.appendChild(document.createTextNode('Timeout performing query, please try again later.'));
+		div.appendChild(el);
+	};
+
+	xhr.onload = function() {
+		handleResponse(xhr);
+	};
+
+	xhr.send();
+}
+
+// callback executed when a response is received
+function handleResponse(xhr) {
+	document.getElementById('type').disabled = false;
+	document.getElementById('object').disabled = false;
+	document.getElementById('button').disabled = false;
+
+	var div = document.getElementById('output-div');
+
+	var el;
+	if (200 != xhr.status) {
+		el = document.createElement('p');
+		el.style.className = 'error';
+		el.appendChild(document.createTextNode(xhr.status + ' error: ' + xhr.statusText));
+
+
+	} else {
+		el = processObject(JSON.parse(xhr.responseText));
+
+	}
+
+	div.appendChild(el);
+}
+
+// process an RDAP object. Argument is a JSON object, return
+// value is a <table> node that can be inserted into the page
+function processObject(object) {
+	if (!object) return false;
+
+	var table = document.createElement('table');
+	table.style.className = 'rdap-object';
+
+	switch (object.objectClassName) {
+		case 'domain':
+			processDomain(object, table);
+			break;
+
+		case 'nameserver':
+			processNameserver(object, table);
+			break;
+
+		case 'entity':
+			processEntity(object, table);
+			break;
+
+		case 'autnum':
+			processAutnum(object, table);
+			break;
+
+		case 'ip network':
+			processIp(object, table);
+			break;
+
+		default:
+			var el = document.createElement('div');
+			el.style.className = 'error';
+			el.appendChild(document.createTextNode("unknown object type '" + object.objectClassName + "'"));
+			return el;
+	}
+
+	var fs = document.createElement('fieldset');
+	var legend = document.createElement('legend');
+	legend.appendChild(document.createTextNode(ucfirst(object.objectClassName) + ' ' + (object.handle ? object.handle : 'Object Information')));
+	fs.appendChild(legend);
+	fs.appendChild(table);
+	return fs;
+}
+
+// simplify the process of adding a name => value row to a table
+function addTableRow(table, name, value) {
+	var row = document.createElement('tr');
+	table.appendChild(row);
+
+	var td1 = document.createElement('td');
+	td1.appendChild(document.createTextNode(name));
+	td1.style = 'white-space:nowrap';
+	row.appendChild(td1);
+
+	var td2 = document.createElement('td');
+	if (value instanceof Node) {
+		td2.appendChild(value);
+
+	} else {
+		td2.appendChild(document.createTextNode(String(value)));
+
+	}
+
+	row.appendChild(td2);
+}
+
+// called by the individual object processors, since all RDAP objects have a similar set of
+// properties. the first argument is the RDAP object and the second is the <table> element
+// being used to display that object.
+function processCommonObjectProperties(object, table) {
+	// if (object.objectClassName) addTableRow(table, 'Object Type:', object.objectClassName);
+	// if (object.handle) addTableRow(table, 'Handle:', object.handle);
+	if (object.status) processStatus(object.status, table);
+	if (object.events) processEvents(object.events, table);
+	if (object.entities) processEntities(object.entities, table);
+	if (object.remarks) processRemarks(object.remarks, table);
+	if (object.notices) processNotices(object.notices, table);
+	if (object.links) processLinks(object.links, table);
+	// if (object.lang) addTableRow(table, 'Language:', object.lang);
+	// if (object.port43) addTableRow(table, 'Whois Server:', object.port43);
+	// if (object.rdapConformance) processrdapConformance(object.rdapConformance, table);
+
+	var div = document.createElement('div');
+	div.id = 'element-' + ++elementCounter;
+
+	var button = document.createElement('button');
+	button.appendChild(document.createTextNode('Show'));
+	button.onclick = new Function('showRawData("' + div.id + '");return false');
+	div.appendChild(button);
+
+	var pre = document.createElement('pre');
+	pre.style = 'display:none;visibility:hidden';
+	pre.appendChild(document.createTextNode(JSON.stringify(object, null, 2)));
+	div.appendChild(pre);
+
+	addTableRow(table, 'Raw Data:', div);
+}
+
+// call back for "Show Raw Data" button
+function showRawData(id) {
+	var div = document.getElementById(id);
+	div.childNodes[0].style = 'display:none;visibility:hidden';
+	div.childNodes[1].style = 'display:block;visibility:visible';
+}
+
+// convert an array into a bulleted list
+function createList(list) {
+	var ul = document.createElement('ul');
+
+	var i;
+	for (i = 0 ; i < list.length ; i++) {
+		var li = document.createElement('li');
+		if (list[i] instanceof Node) {
+			li.appendChild(list[i]);
+
+		} else {
+			li.appendChild(document.createTextNode(list[i]));
+
+		}
+		ul.appendChild(li);
+	}
+
+	return ul;
+}
+
+// add a table row listing the RDAP conformance of the response
+function processrdapConformance(rdapConformance, table) {
+	addTableRow(table, 'RDAP Conformance:', createList(rdapConformance));
+}
+
+// add a table row listing the object's status codes
+function processStatus(status, table) {
+	addTableRow(table, 'Status:', createList(status));
+}
+
+// add a table row listing the object's events
+function processEvents(events, table) {
+	var stable = document.createElement('table');
+	stable.style.className = 'event-table';
+
+	var i;
+	for (i = 0 ; i < events.length ; i++) {
+		if (events[i].eventActor) {
+			text = events[i].eventDate + ' by ' + events[i].eventActor;
+
+		} else {
+			text = events[i].eventDate;
+
+		}
+		addTableRow(stable, events[i].eventAction + ':', text);
+	}
+
+	addTableRow(table, 'Events:', stable);
+}
+
+// add a table row listing the object's links
+function processLinks(links, table) {
+	var ul = document.createElement('ul');
+
+	var i;
+	for (i = 0 ; i < links.length ; i++) {
+		li = document.createElement('li');
+
+		var title = (links[i].title ? links[i].title : links[i].href);
+
+		var link;
+		if (links[i].type && 0 == links[i].type.indexOf("application/rdap+json")) {
+			link = createRDAPLink(links[i].href, title);
+
+		} else {
+			link = document.createElement('a');
+		       	link.rel = 'noopener';
+			link.title = link.href = links[i].href;
+			link.target = '_new';
+			link.appendChild(document.createTextNode(title));
+
+		}
+
+		li.appendChild(link);
+
+		if (links[i].rel) {
+			li.appendChild(document.createTextNode(' (' + links[i].rel + ')'))
+		}
+
+		ul.appendChild(li);
+	}
+
+	addTableRow(table, 'Links:', ul);
+}
+
+// add a table row listing the object's entities
+function processEntities(entities, table) {
+	var div = document.createElement('div');
+
+	var i;
+	for (i = 0 ; i < entities.length ; i++) {
+		div.appendChild(processObject(entities[i]));
+	}
+
+	addTableRow(table, 'Entities:', div);
+}
+
+// add a table row listing the object's remarks
+function processRemarks(remarks, table) {
+	addTableRow(table, 'Remarks:', processRemarksOrNotices(remarks));
+
+}
+
+// add a table row listing the responses's notices
+function processNotices(notices, table) {
+	addTableRow(table, 'Notices:', processRemarksOrNotices(notices));
+}
+
+// command handler for remarks and notices
+function processRemarksOrNotices(things) {
+	var div = document.createElement('div');
+
+	var i;
+	for (i = 0 ; i < things.length ; i++) {
+		var tdiv = document.createElement('div');
+
+		var title = document.createElement('strong');
+		title.appendChild(document.createTextNode(things[i].title));
+		tdiv.appendChild(title);
+		tdiv.appendChild(document.createElement('br'));
+		tdiv.appendChild(document.createElement('br'));
+
+		var body = document.createElement('div');
+		var j;
+		for (j = 0 ; j < things[i].description.length ; j++) {
+			body.appendChild(document.createTextNode(things[i].description[j]));
+			body.appendChild(document.createElement('br'));
+		}
+		tdiv.appendChild(body);
+
+		if (things[i].links) {
+			var ltable = document.createElement('table');
+			processLinks(things[i].links, ltable);
+			tdiv.appendChild(ltable);
+		}
+
+		tdiv.appendChild(document.createElement('br'));
+
+		div.appendChild(tdiv);
+	}
+
+	return div;
+}
+
+// process a domain
+function processDomain(object, table) {
+	addTableRow(table, 'Domain Name:', object.ldhName);
+	if (object.unicodeName) addTableRow(table, 'Internationalised Domain Name:', object.unicodeName);
+
+	if (object.handle) addTableRow(table, 'Handle:', object.handle);
+
+	if (object.nameservers) {
+		var div = document.createElement('div');
+
+		var i;
+		for (i = 0 ; i < object.nameservers.length ; i++) {
+			div.appendChild(processObject(object.nameservers[i]));
+		}
+
+		addTableRow(table, 'Nameservers:', div);
+	}
+
+	addTableRow(table, 'DNSSEC Signed:', object.secureDNS && object.secureDNS.delegationSigned ? 'Yes' : 'No');
+
+	processCommonObjectProperties(object, table);
+}
+
+// process a nameserver
+function processNameserver(object, table) {
+
+	addTableRow(table, 'Host Name:', object.ldhName);
+	if (object.unicodeName) addTableRow(table, 'Internationalised Domain Name:', object.unicodeName);
+	if (object.handle) addTableRow(table, 'Handle:', object.handle);
+
+	if (object.ipAddresses) {
+		if (object.ipAddresses.v4) {
+			var i;
+			for (i = 0 ; i < object.ipAddresses.v4.length ; i++) {
+				addTableRow(table, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v4[i], object.ipAddresses.v4[i]));
+			}
+		}
+
+		if (object.ipAddresses.v6) {
+			var i;
+			for (i = 0 ; i < object.ipAddresses.v6.length ; i++) {
+				addTableRow(table, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v6[i], object.ipAddresses.v6[i]));
+			}
+		}
+	}
+
+	processCommonObjectProperties(object, table);
+}
+
+// process an entity
+function processEntity(object, table) {
+
+	if (object.handle) addTableRow(table, 'Handle:', object.handle);
+
+	if (object.publicIds) {
+		var i;
+		for (i = 0 ; i < object.publicIds.length ; i++) {
+			addTableRow(table, object.publicIds[i].type + ':', object.publicIds[i].identifier);
+		}
+	}
+
+	if (object.roles) {
+		addTableRow(table, 'Roles:', createList(object.roles));
+	}
+
+	if (object.vcardArray && object.vcardArray[1]) {
+		var vtable = processVCardArray(object.vcardArray[1]);
+		addTableRow(table, 'Contact Information:', vtable);
+	}
+
+	processCommonObjectProperties(object, table);
+}
+
+// process an entity's vCard
+function processVCardArray(vcard) {
+	var vtable = document.createElement('table');
+
+	var i;
+	for (i = 0 ; i < vcard.length ; i++) {
+		var node = vcard[i];
+
+		var type = node[0];
+		var value = node[3];
+
+		if ('version' == type) {
+			continue;
+
+		} else if ('fn' == type) {
+			type = 'Name';
+
+		} else if ('n' == type) {
+			continue;
+
+		} else if ('org' == type) {
+			type = 'Organization';
+
+		} else if ('tel' == type) {
+			type = 'Phone';
+
+			if (node[1].type) {
+				var j;
+				for (j = 0 ; j < node[1].type ; j++) {
+					if ('fax' == node[1].type[j]) {
+						type = 'Fax';
+					}
+				}
+			}
+
+			var link = document.createElement('a');
+			link.href = (0 == value.indexOf('tel:') ? '' : 'tel:') + value;
+			link.appendChild(document.createTextNode(value));
+
+			value = link;
+
+		} else if ('adr' == type) {
+			type = 'Address';
+
+			if (node[1].label) {
+				value = node[1].label;
+
+			} else if (value) {
+				var div = document.createElement('div');
+				var j;
+				for (j = 0 ; j < value.length ; j++) {
+					if (value[j].length > 0) {
+						div.appendChild(document.createTextNode(value[j]));
+						div.appendChild(document.createElement('br'));
+					}
+				}
+
+				value = div;
+			}
+
+		} else if ('email' == type) {
+			type = 'Email';
+
+			var link = document.createElement('a');
+			link.href = 'mailto:' + value;
+			link.appendChild(document.createTextNode(value));
+
+			value = link;
+		}
+
+		if (value) {
+			addTableRow(vtable, type + ':', value);
+		}
+	}
+
+	return vtable;
+}
+
+// process an AS number
+function processAutnum(object, table) {
+	processCommonObjectProperties(object, table);
+}
+
+// process an IP or IP block
+function processIp(object, table) {
+	processCommonObjectProperties(object, table);
+}
+
+// given an object, return the "self" URL (if any) 
+function getSelfLink(object) {
+	if (object.links) {
+		var i;
+		for (i = 0 ; i < object.links.length ; i++) {
+			if ('self' == object.links[i].rel) {
+				return object.links[i].href;
+			}
+		}
+
+		return null;
+
+	} else {
+		return null;
+
+	}
+}
+
+// create an RDAP link: a link pointing to an RDAP URL
+// that when clicked, causes an RDAP query to be made
+function createRDAPLink(url, title) {
+	var link = document.createElement('a');
+
+	link.href = 'javascript:void(0)';
+	link.title = url;
+	link.onclick = new Function("runQuery('" + url + "')");
+
+	link.appendChild(document.createTextNode(title));
+
+	return link;
+}
+
+// make the first character uppercase
+function ucfirst(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+</script>
+</head>
+<body>
+<h1>RDAP Web Client</h1>
+
+<form onsubmit="doQuery();return false">
+	<fieldset id="input">
+		<legend>RDAP Query</legend>
+		<p>
+			<select id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)">
+				<option value="domain">Domain Name</option>
+				<option value="tld">Top-level domain</option>
+				<option value="ip">IP Address or CIDR</option>
+				<option value="autnum">AS Number</option>
+				<option value="entity">Entity</option>
+				<option value="registrar">ICANN-Accredited Registrar</option>
+				<option value="url">URL</option>
+			</select>
+			<input id="object" type="text" name="object" placeholder="example.com" style="width:32em"/>
+			<input id="button" type="button" value="Submit" onclick="doQuery()"/>
+		</p>
+
+	</fieldset>
+
+	<div id="output-div">
+		<!-- output will go here -->
+	</div>
+</form>
+
+<p><strong>Note:</strong></p>
+
+<ul>
+	<li>This page uses the <a href="https://about.rdap.org/">RDAP.org</a> service, so your queries are sent to that server, but the RDAP responses themselves come directly from the registries.</li>
+	<li>Top-level domain and ICANN-accredited registrar queries do not use the IANA bootstrap registries; instead these queries are sent to the RDAP.org RDAP servers.</li>
+	<li>To submit feedback, <a href="mailto:rdap.org-feedback@cryptocracy.org">click here</a>. Please contact the registries if you have any issues with the contents of RDAP responses.</li>
+	<li>The RDAP Web Client is Free Software; for the license, <a href="LICENSE">click here</a>. To fork a copy of the git repository, <a href="https://gitlab.centralnic.com/centralnic/rdap-web-client">click here</a>.</li>
+</ul>
+
+<script>
+document.getElementById('object').focus();
+</script>
+</body>
+</html>
