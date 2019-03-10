@@ -385,13 +385,15 @@ function processRemarksOrNotices(things) {
 		tdiv.appendChild(document.createElement('br'));
 		tdiv.appendChild(document.createElement('br'));
 
-		var body = document.createElement('div');
-		var j;
-		for (j = 0 ; j < things[i].description.length ; j++) {
-			body.appendChild(document.createTextNode(things[i].description[j]));
-			body.appendChild(document.createElement('br'));
+		if (things[i].description) {
+			var body = document.createElement('div');
+			var j;
+			for (j = 0 ; j < things[i].description.length ; j++) {
+				body.appendChild(document.createTextNode(things[i].description[j]));
+				body.appendChild(document.createElement('br'));
+			}
+			tdiv.appendChild(body);
 		}
-		tdiv.appendChild(body);
 
 		if (things[i].links) {
 			var ltable = document.createElement('table');
