@@ -25,8 +25,13 @@ fieldset {
 pre {
 	margin:0;
 }
+.error {
+	color:red;
+}
 </style>
 <script>
+
+var RDAP_MEDIA_TYPE = 'application/rdap+json';
 
 // keeps track of the elements we've created so we can assign a unique ID
 var elementCounter = 123456;
@@ -60,6 +65,10 @@ function updatePlaceHolder(type) {
 			input.placeholder = '9999';
 			break;
 
+		case 'json':
+			input.placeholder = '{ (paste JSON) }';
+			break;
+
 		default:		
 			input.placeholder = 'example.com';
 	}
@@ -81,6 +90,9 @@ function doQuery() {
 
 	} else if ('registrar' == typeval) {
 		url = 'https://registrars.rdap.org/entity/' + object + '-IANA';
+
+	} else if ('json' == typeval) {
+		url = 'json://' + object;
 
 	} else {
 		url = 'https://rdap.org/' + typeval + '/' + object;
@@ -113,26 +125,44 @@ function sendQuery(url) {
 	var div = document.getElementById('output-div');
 	div.innerHTML = '';
 
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', url);
-	xhr.timeout = 10000;
-
-	xhr.ontimeout = function() {
-		document.getElementById('type').disabled = false;
-		document.getElementById('object').disabled = false;
-		document.getElementById('button').disabled = false;
-
-		el = document.createElement('p');
-		el.style.className = 'error';
-		el.appendChild(document.createTextNode('Timeout performing query, please try again later.'));
-		div.appendChild(el);
-	};
-
-	xhr.onload = function() {
+	if (0 == url.indexOf('json://')) {
+		// mock an XHR and run the callback
+		var xhr = {};
+		xhr.status = 200;
+		xhr.responseText = url.substring(7);
 		handleResponse(xhr);
-	};
 
-	xhr.send();
+	} else {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', url);
+		xhr.timeout = 10000;
+
+		xhr.setRequestHeader('Accept', RDAP_MEDIA_TYPE);
+
+		xhr.ontimeout = function() {
+			document.getElementById('type').disabled = false;
+			document.getElementById('object').disabled = false;
+			document.getElementById('button').disabled = false;
+
+			handleError('Timeout performing query, please try again later.');
+		};
+
+		xhr.onload = function() {
+			handleResponse(xhr);
+		};
+
+		xhr.send();
+	}
+}
+
+function handleError(error) {
+	var div = document.getElementById('output-div');
+	div.innerHTML = '';
+
+	el = document.createElement('p');
+	el.classList.add('error');
+	el.appendChild(document.createTextNode(error));
+	div.appendChild(el);
 }
 
 // callback executed when a response is received
@@ -141,21 +171,19 @@ function handleResponse(xhr) {
 	document.getElementById('object').disabled = false;
 	document.getElementById('button').disabled = false;
 
-	var div = document.getElementById('output-div');
-
-	var el;
 	if (200 != xhr.status) {
-		el = document.createElement('p');
-		el.style.className = 'error';
-		el.appendChild(document.createTextNode(xhr.status + ' error: ' + xhr.statusText));
-
+		handleError(xhr.status + ' error: ' + xhr.statusText);
 
 	} else {
-		el = processObject(JSON.parse(xhr.responseText));
+		try {
+			document.getElementById('output-div').appendChild(processObject(JSON.parse(xhr.responseText)));
 
+		} catch (e) {
+			handleError(e.message);
+
+		}
 	}
 
-	div.appendChild(el);
 }
 
 // process an RDAP object. Argument is a JSON object, return
@@ -324,7 +352,7 @@ function processLinks(links, table) {
 		var title = (links[i].title ? links[i].title : links[i].href);
 
 		var link;
-		if (links[i].type && 0 == links[i].type.indexOf("application/rdap+json")) {
+		if (links[i].type && 0 == links[i].type.indexOf(RDAP_MEDIA_TYPE)) {
 			link = createRDAPLink(links[i].href, title);
 
 		} else {
@@ -624,6 +652,7 @@ function ucfirst(string) {
 				<option value="entity">Entity</option>
 				<option value="registrar">ICANN-Accredited Registrar</option>
 				<option value="url">URL</option>
+				<option value="json">JSON</option>
 			</select>
 			<input id="object" type="text" name="object" placeholder="example.com" style="width:32em"/>
 			<input id="button" type="button" value="Submit" onclick="doQuery()"/>
