@@ -143,9 +143,7 @@ function sendQuery(url) {
 			handleError('Timeout performing query, please try again later.');
 		};
 
-		xhr.onload = function() {
-			handleResponse(xhr);
-		};
+		xhr.onload = function() { handleResponse(xhr); };
 
 		xhr.send();
 	}
