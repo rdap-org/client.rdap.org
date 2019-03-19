@@ -6,8 +6,9 @@
 <style>
 html,body,p,table,tr,td,th,ul,ol,li,input,select,input,button {
 	font-family: "Helvetica", "Arial", sans;
-	font-weight: 200;
+	line-height: 1.5em;
 	font-size: 11pt;
+	color: #444;
 }
 td,th {
 	vertical-align:top;
@@ -21,6 +22,12 @@ td,th {
 }
 fieldset {
 	margin:0 0 1em 0;
+	border:1px solid grey;
+	border-radius:1em;
+}
+legend {
+	padding:0 0.5em;
+	font-weight:bold;
 }
 pre {
 	margin:0;
@@ -195,7 +202,7 @@ function processObject(object) {
 	if (!object) return false;
 
 	var table = document.createElement('table');
-	table.style.className = 'rdap-object';
+	table.classList.add('rdap-object');
 
 	switch (object.objectClassName) {
 		case 'domain':
@@ -223,10 +230,8 @@ function processObject(object) {
 				return createErrorNode(object.errorCode + ' error: ' + object.title);
 
 			} else {
-				var el = document.createElement('div');
-				el.style.className = 'error';
-				el.appendChild(document.createTextNode("unknown object type '" + object.objectClassName + "'"));
-				return el;
+				return createErrorNode("unknown object type '" + object.objectClassName + "'");
+
 			}
 	}
 
@@ -241,14 +246,17 @@ function processObject(object) {
 // simplify the process of adding a name => value row to a table
 function addTableRow(table, name, value) {
 	var row = document.createElement('tr');
+	row.classList.add('rdap-table-row');
 	table.appendChild(row);
 
 	var td1 = document.createElement('td');
-	td1.appendChild(document.createTextNode(name));
+	td1.classList.add('rdap-table-name');
 	td1.style = 'white-space:nowrap';
+	td1.appendChild(document.createTextNode(name));
 	row.appendChild(td1);
 
 	var td2 = document.createElement('td');
+	td2.classList.add('rdap-table-value');
 	if (value instanceof Node) {
 		td2.appendChild(value);
 
@@ -272,9 +280,9 @@ function processCommonObjectProperties(object, table) {
 	if (object.remarks) processRemarks(object.remarks, table);
 	if (object.notices) processNotices(object.notices, table);
 	if (object.links) processLinks(object.links, table);
-	// if (object.lang) addTableRow(table, 'Language:', object.lang);
-	// if (object.port43) addTableRow(table, 'Whois Server:', object.port43);
-	// if (object.rdapConformance) processrdapConformance(object.rdapConformance, table);
+	if (object.lang) addTableRow(table, 'Language:', object.lang);
+	if (object.port43) addTableRow(table, 'Whois Server:', object.port43);
+	if (object.rdapConformance) processrdapConformance(object.rdapConformance, table);
 
 	var div = document.createElement('div');
 	div.id = 'element-' + ++elementCounter;
@@ -331,7 +339,7 @@ function processStatus(status, table) {
 // add a table row listing the object's events
 function processEvents(events, table) {
 	var stable = document.createElement('table');
-	stable.style.className = 'event-table';
+	stable.classList.add('event-table');
 
 	for (var i = 0 ; i < events.length ; i++) {
 		if (events[i].eventActor) {
@@ -442,6 +450,14 @@ function processDomain(object, table) {
 	if (object.unicodeName) addTableRow(table, 'Internationalised Domain Name:', object.unicodeName);
 
 	if (object.handle) addTableRow(table, 'Handle:', object.handle);
+
+	// process events, status and entities here, then set them to null so processCommonObjectProperties()
+	// doesn't process them again. this makes the output look more like a traditional whois record:
+	if (object.events) processEvents(object.events, table);
+	if (object.status) processStatus(object.status, table);
+	if (object.entities) processEntities(object.entities, table);
+
+	object.events = object.status = object.entities = null;
 
 	if (object.nameservers) {
 		var div = document.createElement('div');
