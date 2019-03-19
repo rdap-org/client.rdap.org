@@ -152,11 +152,15 @@ function sendQuery(url) {
 function handleError(error) {
 	var div = document.getElementById('output-div');
 	div.innerHTML = '';
+	div.appendChild(createErrorNode(error));
+}
 
+function createErrorNode(error) {
 	el = document.createElement('p');
 	el.classList.add('error');
 	el.appendChild(document.createTextNode(error));
-	div.appendChild(el);
+
+	return el;
 }
 
 // callback executed when a response is received
@@ -173,7 +177,7 @@ function handleResponse(xhr) {
 			document.getElementById('output-div').appendChild(processObject(JSON.parse(xhr.responseText)));
 
 		} catch (e) {
-			handleError(e.message);
+			handleError('Exception: ' + e.message);
 
 		}
 	}
@@ -210,10 +214,15 @@ function processObject(object) {
 			break;
 
 		default:
-			var el = document.createElement('div');
-			el.style.className = 'error';
-			el.appendChild(document.createTextNode("unknown object type '" + object.objectClassName + "'"));
-			return el;
+			if (object.errorCode) {
+				return createErrorNode(object.errorCode + ' error: ' + object.title);
+
+			} else {
+				var el = document.createElement('div');
+				el.style.className = 'error';
+				el.appendChild(document.createTextNode("unknown object type '" + object.objectClassName + "'"));
+				return el;
+			}
 	}
 
 	var fs = document.createElement('fieldset');
