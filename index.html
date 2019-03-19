@@ -95,11 +95,16 @@ function doQuery() {
 		url = 'json://' + object;
 
 	} else {
-		url = 'https://rdap.org/' + typeval + '/' + object;
+		url = getRDAPURL(typeval, object);
 
 	}
 
 	sendQuery(url);
+}
+
+// construct an RDAP URL for the given object
+function getRDAPURL(typeval, object) {
+	return 'https://rdap.org/' + typeval + '/' + object;
 }
 
 // given a URL, injects that URL into the query input,
