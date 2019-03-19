@@ -106,12 +106,8 @@ function doQuery() {
 // and initiates an RDAP query
 function runQuery(url) {
 	var type = document.getElementById('type');
-	var i;
-	for (i = 0 ; i < type.options.length ; i++) {
-		if ('url' == type.options[i].value) {
-			type.selectedIndex = i;
-		}
-	}
+
+	for (var i = 0 ; i < type.options.length ; i++) if ('url' == type.options[i].value) type.selectedIndex = i;
 	document.getElementById('object').value = url;
 	doQuery();
 }
@@ -126,11 +122,11 @@ function sendQuery(url) {
 	div.innerHTML = '';
 
 	if (0 == url.indexOf('json://')) {
-		// mock an XHR and run the callback
-		var xhr = {};
-		xhr.status = 200;
-		xhr.responseText = url.substring(7);
-		handleResponse(xhr);
+		// run the callback with a mock XHR
+		handleResponse({
+			"status": 200,
+			"responseText": url.substring(7)
+		});
 
 	} else {
 		var xhr = new XMLHttpRequest();
@@ -295,8 +291,7 @@ function showRawData(id) {
 function createList(list) {
 	var ul = document.createElement('ul');
 
-	var i;
-	for (i = 0 ; i < list.length ; i++) {
+	for (var i = 0 ; i < list.length ; i++) {
 		var li = document.createElement('li');
 		if (list[i] instanceof Node) {
 			li.appendChild(list[i]);
@@ -326,8 +321,7 @@ function processEvents(events, table) {
 	var stable = document.createElement('table');
 	stable.style.className = 'event-table';
 
-	var i;
-	for (i = 0 ; i < events.length ; i++) {
+	for (var i = 0 ; i < events.length ; i++) {
 		if (events[i].eventActor) {
 			text = events[i].eventDate + ' by ' + events[i].eventActor;
 
@@ -345,8 +339,7 @@ function processEvents(events, table) {
 function processLinks(links, table) {
 	var ul = document.createElement('ul');
 
-	var i;
-	for (i = 0 ; i < links.length ; i++) {
+	for (var i = 0 ; i < links.length ; i++) {
 		li = document.createElement('li');
 
 		var title = (links[i].title ? links[i].title : links[i].href);
@@ -366,9 +359,7 @@ function processLinks(links, table) {
 
 		li.appendChild(link);
 
-		if (links[i].rel) {
-			li.appendChild(document.createTextNode(' (' + links[i].rel + ')'))
-		}
+		if (links[i].rel) li.appendChild(document.createTextNode(' (' + links[i].rel + ')'));
 
 		ul.appendChild(li);
 	}
@@ -380,10 +371,7 @@ function processLinks(links, table) {
 function processEntities(entities, table) {
 	var div = document.createElement('div');
 
-	var i;
-	for (i = 0 ; i < entities.length ; i++) {
-		div.appendChild(processObject(entities[i]));
-	}
+	for (var i = 0 ; i < entities.length ; i++) div.appendChild(processObject(entities[i]));
 
 	addTableRow(table, 'Entities:', div);
 }
@@ -403,8 +391,7 @@ function processNotices(notices, table) {
 function processRemarksOrNotices(things) {
 	var div = document.createElement('div');
 
-	var i;
-	for (i = 0 ; i < things.length ; i++) {
+	for (var i = 0 ; i < things.length ; i++) {
 		var tdiv = document.createElement('div');
 
 		var title = document.createElement('strong');
@@ -447,10 +434,7 @@ function processDomain(object, table) {
 	if (object.nameservers) {
 		var div = document.createElement('div');
 
-		var i;
-		for (i = 0 ; i < object.nameservers.length ; i++) {
-			div.appendChild(processObject(object.nameservers[i]));
-		}
+		for (var i = 0 ; i < object.nameservers.length ; i++) div.appendChild(processObject(object.nameservers[i]));
 
 		addTableRow(table, 'Nameservers:', div);
 	}
@@ -469,15 +453,13 @@ function processNameserver(object, table) {
 
 	if (object.ipAddresses) {
 		if (object.ipAddresses.v4) {
-			var i;
-			for (i = 0 ; i < object.ipAddresses.v4.length ; i++) {
+			for (var i = 0 ; i < object.ipAddresses.v4.length ; i++) {
 				addTableRow(table, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v4[i], object.ipAddresses.v4[i]));
 			}
 		}
 
 		if (object.ipAddresses.v6) {
-			var i;
-			for (i = 0 ; i < object.ipAddresses.v6.length ; i++) {
+			for (var i = 0 ; i < object.ipAddresses.v6.length ; i++) {
 				addTableRow(table, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v6[i], object.ipAddresses.v6[i]));
 			}
 		}
@@ -492,15 +474,10 @@ function processEntity(object, table) {
 	if (object.handle) addTableRow(table, 'Handle:', object.handle);
 
 	if (object.publicIds) {
-		var i;
-		for (i = 0 ; i < object.publicIds.length ; i++) {
-			addTableRow(table, object.publicIds[i].type + ':', object.publicIds[i].identifier);
-		}
+		for (var i = 0 ; i < object.publicIds.length ; i++) addTableRow(table, object.publicIds[i].type + ':', object.publicIds[i].identifier);
 	}
 
-	if (object.roles) {
-		addTableRow(table, 'Roles:', createList(object.roles));
-	}
+	if (object.roles) addTableRow(table, 'Roles:', createList(object.roles));
 
 	if (object.vcardArray && object.vcardArray[1]) {
 		var vtable = processVCardArray(object.vcardArray[1]);
@@ -514,8 +491,7 @@ function processEntity(object, table) {
 function processVCardArray(vcard) {
 	var vtable = document.createElement('table');
 
-	var i;
-	for (i = 0 ; i < vcard.length ; i++) {
+	for (var i = 0 ; i < vcard.length ; i++) {
 		var node = vcard[i];
 
 		var type = node[0];
@@ -539,9 +515,7 @@ function processVCardArray(vcard) {
 			if (node[1].type) {
 				var j;
 				for (j = 0 ; j < node[1].type ; j++) {
-					if ('fax' == node[1].type[j]) {
-						type = 'Fax';
-					}
+					if ('fax' == node[1].type[j]) type = 'Fax';
 				}
 			}
 
@@ -580,9 +554,7 @@ function processVCardArray(vcard) {
 			value = link;
 		}
 
-		if (value) {
-			addTableRow(vtable, type + ':', value);
-		}
+		if (value) addTableRow(vtable, type + ':', value);
 	}
 
 	return vtable;
@@ -600,20 +572,9 @@ function processIp(object, table) {
 
 // given an object, return the "self" URL (if any) 
 function getSelfLink(object) {
-	if (object.links) {
-		var i;
-		for (i = 0 ; i < object.links.length ; i++) {
-			if ('self' == object.links[i].rel) {
-				return object.links[i].href;
-			}
-		}
+	if (object.links) for (var i = 0 ; i < object.links.length ; i++) if ('self' == object.links[i].rel) return object.links[i].href;
 
-		return null;
-
-	} else {
-		return null;
-
-	}
+	return null;
 }
 
 // create an RDAP link: a link pointing to an RDAP URL
