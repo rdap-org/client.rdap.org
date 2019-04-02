@@ -237,7 +237,7 @@ function processObject(object) {
 
 	var fs = document.createElement('fieldset');
 	var legend = document.createElement('legend');
-	legend.appendChild(document.createTextNode(ucfirst(object.objectClassName) + ' ' + (object.handle ? object.handle : 'Object Information')));
+	legend.appendChild(document.createTextNode(ucfirst(object.objectClassName)));
 	fs.appendChild(legend);
 	fs.appendChild(table);
 	return fs;
@@ -422,8 +422,7 @@ function processRemarksOrNotices(things) {
 
 		if (things[i].description) {
 			var body = document.createElement('div');
-			var j;
-			for (j = 0 ; j < things[i].description.length ; j++) {
+			for (var j = 0 ; j < things[i].description.length ; j++) {
 				body.appendChild(document.createTextNode(things[i].description[j]));
 				body.appendChild(document.createElement('br'));
 			}
@@ -540,11 +539,9 @@ function processVCardArray(vcard) {
 		} else if ('tel' == type) {
 			type = 'Phone';
 
-			if (node[1].type) {
-				var j;
-				for (j = 0 ; j < node[1].type ; j++) {
-					if ('fax' == node[1].type[j]) type = 'Fax';
-				}
+			if (node[1].type) for (var j = 0 ; j < node[1].type ; j++) if ('fax' == node[1].type[j]) {
+				type = 'Fax';
+				break;
 			}
 
 			var link = document.createElement('a');
@@ -557,13 +554,21 @@ function processVCardArray(vcard) {
 			type = 'Address';
 
 			if (node[1].label) {
-				value = node[1].label;
+				var div = document.createElement('div');
+				strings = node[1].label.split("\n");
+				for (var j = 0 ; j < strings.length ; j++) {
+					div.appendChild(document.createTextNode(strings[j]));
+					if (j < strings.length - 1) div.appendChild(document.createElement('br'));
+				}
+
+				value = div;
 
 			} else if (value) {
+				console.log(value);
 				var div = document.createElement('div');
-				var j;
-				for (j = 0 ; j < value.length ; j++) {
-					if (value[j].length > 0) {
+
+				for (var j = 0 ; j < value.length ; j++) {
+					if (value[j] && value[j].length > 0) {
 						div.appendChild(document.createTextNode(value[j]));
 						div.appendChild(document.createElement('br'));
 					}
