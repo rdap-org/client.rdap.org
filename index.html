@@ -1,41 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <title>RDAP Web Client</title>
-<style>
-html,body,p,table,tr,td,th,ul,ol,li,input,select,input,button {
-	font-family: "Helvetica", "Arial", sans;
-	line-height: 1.5em;
-	font-size: 11pt;
-	color: #444;
-}
-td,th {
-	vertical-align:top;
-}
-ul,ol {
-	margin:0;
-	padding: 0 0 0 1em;
-}
-td,th {
-	padding:0.25em;
-}
-fieldset {
-	margin:0 0 1em 0;
-	border:1px solid grey;
-	border-radius:1em;
-}
-legend {
-	padding:0 0.5em;
-	font-weight:bold;
-}
-pre {
-	margin:0;
-}
-.error {
-	color:red;
-}
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/assets/bootstrap.min.css" />
 <script>
 
 var RDAP_MEDIA_TYPE = 'application/rdap+json';
@@ -169,7 +139,7 @@ function handleError(error) {
 
 function createErrorNode(error) {
 	el = document.createElement('p');
-	el.classList.add('error');
+	el.classList.add('error', 'alert', 'alert-warning');
 	el.appendChild(document.createTextNode(error));
 
 	return el;
@@ -202,7 +172,7 @@ function processObject(object) {
 	if (!object) return false;
 
 	var table = document.createElement('table');
-	table.classList.add('rdap-object');
+	table.classList.add('table', 'table-sm', 'table-borderless', 'rdap-object');
 
 	switch (object.objectClassName) {
 		case 'domain':
@@ -288,6 +258,7 @@ function processCommonObjectProperties(object, table) {
 	div.id = 'element-' + ++elementCounter;
 
 	var button = document.createElement('button');
+	button.classList.add('btn', 'btn-secondary');
 	button.appendChild(document.createTextNode('Show'));
 	button.onclick = new Function('showRawData("' + div.id + '");return false');
 	div.appendChild(button);
@@ -339,7 +310,7 @@ function processStatus(status, table) {
 // add a table row listing the object's events
 function processEvents(events, table) {
 	var stable = document.createElement('table');
-	stable.classList.add('event-table');
+	stable.classList.add('table', 'table-sm', 'table-borderless', 'event-table');
 
 	for (var i = 0 ; i < events.length ; i++) {
 		if (events[i].eventActor) {
@@ -431,6 +402,7 @@ function processRemarksOrNotices(things) {
 
 		if (things[i].links) {
 			var ltable = document.createElement('table');
+			ltable.classList.add('table', 'table-sm', 'table-borderless');
 			processLinks(things[i].links, ltable);
 			tdiv.appendChild(ltable);
 		}
@@ -517,6 +489,7 @@ function processEntity(object, table) {
 // process an entity's vCard
 function processVCardArray(vcard) {
 	var vtable = document.createElement('table');
+	vtable.classList.add('table', 'table-sm', 'table-borderless');
 
 	for (var i = 0 ; i < vcard.length ; i++) {
 		var node = vcard[i];
@@ -632,13 +605,19 @@ function ucfirst(string) {
 </script>
 </head>
 <body>
-<h1>RDAP Web Client</h1>
 
-<form onsubmit="doQuery();return false">
-	<fieldset id="input">
-		<legend>RDAP Query</legend>
-		<p>
-			<select id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)">
+<nav class="navbar navbar-dark bg-dark shadow-sm">
+<span class="text-white font-weight-bold" style="font-size:larger">RDAP Web Client</span>
+</nav>
+
+<br/>
+
+<div class="container">
+
+<form onsubmit="doQuery();return false" class="form-inline">
+	<div class="input-group input-group-sm">
+		<div class="input-group-prepend">
+			<select id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)" xclass="custom-select">
 				<option value="domain">Domain Name</option>
 				<option value="tld">Top-level domain</option>
 				<option value="ip">IP Address or CIDR</option>
@@ -648,16 +627,21 @@ function ucfirst(string) {
 				<option value="url">URL</option>
 				<option value="json">JSON</option>
 			</select>
-			<input id="object" type="text" name="object" placeholder="example.com" style="width:32em"/>
-			<input id="button" type="button" value="Submit" onclick="doQuery()"/>
-		</p>
+		</div>
 
-	</fieldset>
+		<input id="object" type="text" name="object" placeholder="example.com" style="width:32em" class="form-control" />
 
-	<div id="output-div">
+		<div class="input-group-append">
+			<input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary"/>
+		</div>
+	</div>
+
+	<div id="output-div" class="container">
 		<!-- output will go here -->
 	</div>
 </form>
+
+<br/>
 
 <p><strong>Note:</strong></p>
 
@@ -671,5 +655,8 @@ function ucfirst(string) {
 <script>
 document.getElementById('object').focus();
 </script>
+
+</div>
+
 </body>
 </html>
