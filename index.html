@@ -13,6 +13,14 @@ var RDAP_MEDIA_TYPE = 'application/rdap+json';
 // keeps track of the elements we've created so we can assign a unique ID
 var elementCounter = 123456;
 
+var cardTitles = {
+	"domain": "Domain Name",
+	"ip network": "IP Network",
+	"nameserver": "Nameserver",
+	"entity": "Entity",
+	"autnum": "AS Number",
+};
+
 // event handler for when the query type changes
 function updatePlaceHolder(type) {
 	var input = document.getElementById('object');
@@ -205,12 +213,22 @@ function processObject(object) {
 			}
 	}
 
-	var fs = document.createElement('fieldset');
-	var legend = document.createElement('legend');
-	legend.appendChild(document.createTextNode(ucfirst(object.objectClassName)));
-	fs.appendChild(legend);
-	fs.appendChild(table);
-	return fs;
+	var card = document.createElement('div');
+	card.classList.add('card');
+
+	var body = document.createElement('div');
+	body.classList.add('card-body');
+
+	var title = document.createElement('div');
+	title.classList.add('card-header', 'font-weight-bold');
+	title.appendChild(document.createTextNode(cardTitles[object.objectClassName] + ' ' + object.handle));
+	body.appendChild(title);
+
+	table.classList.add('card-text');
+	body.appendChild(table);
+
+	card.appendChild(body);
+	return card;
 }
 
 // simplify the process of adding a name => value row to a table
@@ -597,11 +615,6 @@ function createRDAPLink(url, title) {
 	return link;
 }
 
-// make the first character uppercase
-function ucfirst(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 </script>
 </head>
 <body>
@@ -614,10 +627,10 @@ function ucfirst(string) {
 
 <div class="container">
 
-<form onsubmit="doQuery();return false" class="form-inline">
+<form onsubmit="doQuery();return false" class="form">
 	<div class="input-group input-group-sm">
 		<div class="input-group-prepend">
-			<select id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)" xclass="custom-select">
+			<select id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)">
 				<option value="domain">Domain Name</option>
 				<option value="tld">Top-level domain</option>
 				<option value="ip">IP Address or CIDR</option>
@@ -634,7 +647,10 @@ function ucfirst(string) {
 		<div class="input-group-append">
 			<input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary"/>
 		</div>
+
 	</div>
+
+	<br/>
 
 	<div id="output-div" class="container">
 		<!-- output will go here -->
@@ -654,6 +670,24 @@ function ucfirst(string) {
 
 <script>
 document.getElementById('object').focus();
+
+var params = new URLSearchParams(window.location.search);
+
+if (params.has('type')) {
+	var select = document.getElementById('type');
+	for (var i = 0 ; i < select.options.length ; i++) {
+		if (select.options.item(i).value == params.get('type')) {
+			select.selectedIndex = i;
+			break;
+		}
+	}
+}
+
+if (params.has('object')) {
+	document.getElementById('object').value = params.get('object');
+
+	doQuery();
+}
 </script>
 
 </div>
