@@ -221,7 +221,7 @@ function processObject(object) {
 
 	var title = document.createElement('div');
 	title.classList.add('card-header', 'font-weight-bold');
-	title.appendChild(document.createTextNode(cardTitles[object.objectClassName] + ' ' + object.handle));
+	title.appendChild(document.createTextNode(cardTitles[object.objectClassName] + (object.handle ? ' ' + object.handle : '')));
 	body.appendChild(title);
 
 	table.classList.add('card-text');
