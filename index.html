@@ -2,10 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8"/>
-    <title>RDAP Web Client</title>
+    <title>RDAP Lookup</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./assets/bootstrap.min.css" />
+    <style>
+      dd {
+        margin: 0.5em 0 1em 2em;
+      }
+      .card {
+        margin-bottom:1em;
+      }
+    </style>
     <script>
       var RDAP_MEDIA_TYPE = 'application/rdap+json';
 
@@ -188,28 +196,27 @@
       function processObject(object) {
         if (!object) return false;
 
-        var table = document.createElement('table');
-        table.classList.add('table', 'table-sm', 'table-borderless', 'rdap-object');
+        var dl = document.createElement('dl');
 
         switch (object.objectClassName) {
           case 'domain':
-            processDomain(object, table);
+            processDomain(object, dl);
             break;
 
           case 'nameserver':
-            processNameserver(object, table);
+            processNameserver(object, dl);
             break;
 
           case 'entity':
-            processEntity(object, table);
+            processEntity(object, dl);
             break;
 
           case 'autnum':
-            processAutnum(object, table);
+            processAutnum(object, dl);
             break;
 
           case 'ip network':
-            processIp(object, table);
+            processIp(object, dl);
             break;
 
           default:
@@ -233,52 +240,47 @@
         title.appendChild(document.createTextNode(cardTitles[object.objectClassName] + (object.handle ? ' ' + object.handle : '')));
         card .appendChild(title);
 
-        table.classList.add('card-text');
-        body.appendChild(table);
+        body.appendChild(dl);
 
         card.appendChild(body);
         return card;
       }
 
-      // simplify the process of adding a name => value row to a table
-      function addTableRow(table, name, value) {
-        var row = document.createElement('tr');
-        row.classList.add('rdap-table-row');
-        table.appendChild(row);
+      // simplify the process of adding a name => value to a definition list
+      function addProperty(dl, name, value) {
 
-        var td1 = document.createElement('td');
-        td1.classList.add('rdap-table-name');
-        td1.appendChild(document.createTextNode(name));
-        row.appendChild(td1);
+        var dt = document.createElement('dt');
+        dt.classList.add('rdap-property-name');
+        dt.appendChild(document.createTextNode(name));
+        dl.appendChild(dt);
 
-        var td2 = document.createElement('td');
-        td2.classList.add('rdap-table-value');
+        var dd = document.createElement('dd');
+        dd.classList.add('rdap-property-value');
         if (value instanceof Node) {
-          td2.appendChild(value);
+          dd.appendChild(value);
 
         } else {
-          td2.appendChild(document.createTextNode(String(value)));
+          dd.appendChild(document.createTextNode(String(value)));
 
         }
-
-        row.appendChild(td2);
+        dl.appendChild(dd);
       }
 
       // called by the individual object processors, since all RDAP objects have a similar set of
-      // properties. the first argument is the RDAP object and the second is the <table> element
+      // properties. the first argument is the RDAP object and the second is the <dl> element
       // being used to display that object.
-      function processCommonObjectProperties(object, table) {
-        // if (object.objectClassName) addTableRow(table, 'Object Type:', object.objectClassName);
-        // if (object.handle) addTableRow(table, 'Handle:', object.handle);
-        if (object.status) processStatus(object.status, table);
-        if (object.events) processEvents(object.events, table);
-        if (object.entities) processEntities(object.entities, table);
-        if (object.remarks) processRemarks(object.remarks, table);
-        if (object.notices) processNotices(object.notices, table);
-        if (object.links) processLinks(object.links, table);
-        if (object.lang) addTableRow(table, 'Language:', object.lang);
-        if (object.port43) addTableRow(table, 'Whois Server:', object.port43);
-        if (object.rdapConformance) processrdapConformance(object.rdapConformance, table);
+      function processCommonObjectProperties(object, dl) {
+        // if (object.objectClassName) addProperty(dl, 'Object Type:', object.objectClassName);
+        // if (object.handle) addProperty(dl, 'Handle:', object.handle);
+        if (object.status) processStatus(object.status, dl);
+        if (object.events) processEvents(object.events, dl);
+        if (object.entities) processEntities(object.entities, dl);
+        if (object.remarks) processRemarks(object.remarks, dl);
+        if (object.notices) processNotices(object.notices, dl);
+        if (object.links) processLinks(object.links, dl);
+        if (object.lang) addProperty(dl, 'Language:', object.lang);
+        if (object.port43) addProperty(dl, 'Whois Server:', object.port43);
+        if (object.rdapConformance) processrdapConformance(object.rdapConformance, dl);
 
         var div = document.createElement('div');
         div.id = 'element-' + ++elementCounter;
@@ -294,7 +296,7 @@
         pre.appendChild(document.createTextNode(JSON.stringify(object, null, 2)));
         div.appendChild(pre);
 
-        addTableRow(table, 'Raw Data:', div);
+        addProperty(dl, 'Raw Data:', div);
       }
 
       // call back for "Show Raw Data" button
@@ -307,11 +309,9 @@
       // convert an array into a bulleted list
       function createList(list) {
         var ul = document.createElement('ul');
-        ul.classList.add('list-group');
 
         for (var i = 0 ; i < list.length ; i++) {
           var li = document.createElement('li');
-          li.classList.add('list-group-item');
           if (list[i] instanceof Node) {
             li.appendChild(list[i]);
 
@@ -325,38 +325,35 @@
         return ul;
       }
 
-      // add a table row listing the RDAP conformance of the response
-      function processrdapConformance(rdapConformance, table) {
-        addTableRow(table, 'Conformance:', createList(rdapConformance));
+      // add the RDAP conformance of the response
+      function processrdapConformance(rdapConformance, dl) {
+        addProperty(dl, 'Conformance:', createList(rdapConformance));
       }
 
-      // add a table row listing the object's status codes
-      function processStatus(status, table) {
-        addTableRow(table, 'Status:', createList(status));
+      // add the object's status codes
+      function processStatus(status, dl) {
+        addProperty(dl, 'Status:', createList(status));
       }
 
-      // add a table row listing the object's events
-      function processEvents(events, table) {
-        var stable = document.createElement('table');
-        stable.classList.add('table', 'table-sm', 'table-sm-responsive', 'table-borderless', 'event-table');
+      // add the object's events
+      function processEvents(events, dl) {
+        var sdl = document.createElement('dl');
 
         for (var i = 0 ; i < events.length ; i++) {
           text = new Date(events[i].eventDate).toLocaleString();
           if (events[i].eventActor) text += ' by ' + events[i].eventActor;
-          addTableRow(stable, events[i].eventAction + ':', text);
+          addProperty(sdl, events[i].eventAction + ':', text);
         }
 
-        addTableRow(table, 'Events:', stable);
+        addProperty(dl, 'Events:', sdl);
       }
 
-      // add a table row listing the object's links
-      function processLinks(links, table) {
+      // add the object's links
+      function processLinks(links, dl) {
         var ul = document.createElement('ul');
-          ul.classList.add('list-group');
 
         for (var i = 0 ; i < links.length ; i++) {
           li = document.createElement('li');
-              li.classList.add('list-group-item');
 
           var title = (links[i].title ? links[i].title : links[i].href);
 
@@ -380,27 +377,27 @@
           ul.appendChild(li);
         }
 
-        addTableRow(table, 'Links:', ul);
+        addProperty(dl, 'Links:', ul);
       }
 
-      // add a table row listing the object's entities
-      function processEntities(entities, table) {
+      // add the object's entities
+      function processEntities(entities, dl) {
         var div = document.createElement('div');
 
         for (var i = 0 ; i < entities.length ; i++) div.appendChild(processObject(entities[i]));
 
-        addTableRow(table, 'Entities:', div);
+        addProperty(dl, 'Entities:', div);
       }
 
-      // add a table row listing the object's remarks
-      function processRemarks(remarks, table) {
-        addTableRow(table, 'Remarks:', processRemarksOrNotices(remarks));
+      // add the object's remarks
+      function processRemarks(remarks, dl) {
+        addProperty(dl, 'Remarks:', processRemarksOrNotices(remarks));
 
       }
 
-      // add a table row listing the responses's notices
-      function processNotices(notices, table) {
-        addTableRow(table, 'Notices:', processRemarksOrNotices(notices));
+      // add the responses's notices
+      function processNotices(notices, dl) {
+        addProperty(dl, 'Notices:', processRemarksOrNotices(notices));
       }
 
       // command handler for remarks and notices
@@ -426,10 +423,9 @@
           }
 
           if (things[i].links) {
-            var ltable = document.createElement('table');
-            ltable.classList.add('table', 'table-sm', 'table-borderless');
-            processLinks(things[i].links, ltable);
-            tdiv.appendChild(ltable);
+            var ldl = document.createElement('dl');
+            processLinks(things[i].links, ldl);
+            tdiv.appendChild(ldl);
           }
 
           tdiv.appendChild(document.createElement('br'));
@@ -441,17 +437,17 @@
       }
 
       // process a domain
-      function processDomain(object, table) {
-        addTableRow(table, 'Name:', object.ldhName);
-        if (object.unicodeName) addTableRow(table, 'Internationalised Domain Name:', object.unicodeName);
+      function processDomain(object, dl) {
+        addProperty(dl, 'Name:', object.ldhName);
+        if (object.unicodeName) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
 
-        if (object.handle) addTableRow(table, 'Handle:', object.handle);
+        if (object.handle) addProperty(dl, 'Handle:', object.handle);
 
         // process events, status and entities here, then set them to null so processCommonObjectProperties()
         // doesn't process them again. this makes the output look more like a traditional whois record:
-        if (object.events) processEvents(object.events, table);
-        if (object.status) processStatus(object.status, table);
-        if (object.entities) processEntities(object.entities, table);
+        if (object.events) processEvents(object.events, dl);
+        if (object.status) processStatus(object.status, dl);
+        if (object.entities) processEntities(object.entities, dl);
 
         object.events = object.status = object.entities = null;
 
@@ -460,61 +456,60 @@
 
           for (var i = 0 ; i < object.nameservers.length ; i++) div.appendChild(processObject(object.nameservers[i]));
 
-          addTableRow(table, 'Nameservers:', div);
+          addProperty(dl, 'Nameservers:', div);
         }
 
-        addTableRow(table, 'DNSSEC:', object.secureDNS && object.secureDNS.delegationSigned ? 'Secure' : 'Insecure');
+        addProperty(dl, 'DNSSEC:', object.secureDNS && object.secureDNS.delegationSigned ? 'Secure' : 'Insecure');
 
-        processCommonObjectProperties(object, table);
+        processCommonObjectProperties(object, dl);
       }
 
       // process a nameserver
-      function processNameserver(object, table) {
+      function processNameserver(object, dl) {
 
-        addTableRow(table, 'Host Name:', object.ldhName);
-        if (object.unicodeName) addTableRow(table, 'Internationalised Domain Name:', object.unicodeName);
-        if (object.handle) addTableRow(table, 'Handle:', object.handle);
+        addProperty(dl, 'Host Name:', object.ldhName);
+        if (object.unicodeName) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
+        if (object.handle) addProperty(dl, 'Handle:', object.handle);
 
         if (object.ipAddresses) {
           if (object.ipAddresses.v4) {
             for (var i = 0 ; i < object.ipAddresses.v4.length ; i++) {
-              addTableRow(table, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v4[i], object.ipAddresses.v4[i]));
+              addProperty(dl, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v4[i], object.ipAddresses.v4[i]));
             }
           }
 
           if (object.ipAddresses.v6) {
             for (var i = 0 ; i < object.ipAddresses.v6.length ; i++) {
-              addTableRow(table, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v6[i], object.ipAddresses.v6[i]));
+              addProperty(dl, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v6[i], object.ipAddresses.v6[i]));
             }
           }
         }
 
-        processCommonObjectProperties(object, table);
+        processCommonObjectProperties(object, dl);
       }
 
       // process an entity
-      function processEntity(object, table) {
+      function processEntity(object, dl) {
 
-        if (object.handle) addTableRow(table, 'Handle:', object.handle);
+        if (object.handle) addProperty(dl, 'Handle:', object.handle);
 
         if (object.publicIds) {
-          for (var i = 0 ; i < object.publicIds.length ; i++) addTableRow(table, object.publicIds[i].type + ':', object.publicIds[i].identifier);
+          for (var i = 0 ; i < object.publicIds.length ; i++) addProperty(dl, object.publicIds[i].type + ':', object.publicIds[i].identifier);
         }
 
-        if (object.roles) addTableRow(table, 'Roles:', createList(object.roles));
+        if (object.roles) addProperty(dl, 'Roles:', createList(object.roles));
 
         if (object.vcardArray && object.vcardArray[1]) {
-          var vtable = processVCardArray(object.vcardArray[1]);
-          addTableRow(table, 'Contact Information:', vtable);
+          var vdl = processVCardArray(object.vcardArray[1]);
+          addProperty(dl, 'Contact Information:', vdl);
         }
 
-        processCommonObjectProperties(object, table);
+        processCommonObjectProperties(object, dl);
       }
 
       // process an entity's vCard
       function processVCardArray(vcard) {
-        var vtable = document.createElement('table');
-        vtable.classList.add('table', 'table-sm', 'table-borderless');
+        var vdl = document.createElement('dl');
 
         for (var i = 0 ; i < vcard.length ; i++) {
           var node = vcard[i];
@@ -584,20 +579,20 @@
             value = link;
           }
 
-          if (value) addTableRow(vtable, type + ':', value);
+          if (value) addProperty(vdl, type + ':', value);
         }
 
-        return vtable;
+        return vdl;
       }
 
       // process an AS number
-      function processAutnum(object, table) {
-        processCommonObjectProperties(object, table);
+      function processAutnum(object, dl) {
+        processCommonObjectProperties(object, dl);
       }
 
       // process an IP or IP block
-      function processIp(object, table) {
-        processCommonObjectProperties(object, table);
+      function processIp(object, dl) {
+        processCommonObjectProperties(object, dl);
       }
 
       // given an object, return the "self" URL (if any) 
@@ -624,7 +619,7 @@
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark shadow-sm">
-      <span class="text-white font-weight-bold" style="font-size:larger">RDAP Web Client</span>
+      <span class="text-white font-weight-bold" style="font-size:larger">RDAP Lookup</span>
     </nav>
 
     <br/>
@@ -632,32 +627,34 @@
     <div class="container">
 
       <form onsubmit="doQuery();return false" class="form-inline">
-        <div class="input-group input-group-sm">
-          <div class="input-group-prepend">
-                          <select id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)">
-                            <option value="domain">Domain Name</option>
-                            <option value="tld">Top-level domain</option>
-                            <option value="ip">IP Address or CIDR</option>
-                            <option value="autnum">AS Number</option>
-                            <option value="entity">Entity</option>
-                            <option value="registrar">ICANN-Accredited Registrar</option>
-                           <option value="url">URL</option>
-                            <option value="json">JSON</option>
-                          </select>
+        <div class="col" style="padding:0">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <select class="custom-select" id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)">
+                <option value="domain" selected>Domain</option>
+                <option value="tld">TLD</option>
+                <option value="ip">IP/CIDR</option>
+                <option value="autnum">AS Number</option>
+                <option value="entity">Entity</option>
+                <option value="registrar">Registrar</option>
+                <option value="url">URL</option>
+                <option value="json">JSON</option>
+              </select>
+            </div>
+
+            <input class="form-control" id="object" type="text" name="object" placeholder="example.com" />
+
+            <div class="input-group-append">
+              <input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary"/>
+            </div>
+
           </div>
-
-          <input class="form-control" id="object" type="text" name="object" placeholder="example.com" style="width:32em" class="form-control" />
-
-          <div class="input-group-append">
-            <input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary"/>
-          </div>
-
         </div>
       </form>
 
       <br/>
 
-      <div id="output-div" class="container"></div>
+      <div id="output-div"></div>
 
       <br/>
 
