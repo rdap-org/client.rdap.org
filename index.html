@@ -137,6 +137,7 @@
           var xhr = new XMLHttpRequest();
           xhr.open('GET', url);
           xhr.timeout = 25000;
+          xhr.responseType = 'json';
 
           xhr.setRequestHeader('Accept', RDAP_MEDIA_TYPE);
 
@@ -181,7 +182,13 @@
           try {
                   var div = document.getElementById('output-div');
                   div.innerHTML = '';
-            div.appendChild(processObject(JSON.parse(xhr.responseText)));
+                  div.appendChild(processObject(xhr.response, true));
+
+                  var url = document.createElement('a');
+                  url.href = window.location.href;
+                  url.search = '?type=' + escape(document.getElementById('type').value) + '&object=' + escape(document.getElementById('object').value);
+
+                  window.history.pushState(null, window.title, url.href);
 
           } catch (e) {
             handleError('Exception: ' + e.message);
@@ -193,30 +200,30 @@
 
       // process an RDAP object. Argument is a JSON object, return
       // value is an element that can be inserted into the page
-      function processObject(object) {
+      function processObject(object, toplevel) {
         if (!object) return false;
 
         var dl = document.createElement('dl');
 
         switch (object.objectClassName) {
           case 'domain':
-            processDomain(object, dl);
+            processDomain(object, dl, toplevel);
             break;
 
           case 'nameserver':
-            processNameserver(object, dl);
+            processNameserver(object, dl, toplevel);
             break;
 
           case 'entity':
-            processEntity(object, dl);
+            processEntity(object, dl, toplevel);
             break;
 
           case 'autnum':
-            processAutnum(object, dl);
+            processAutnum(object, dl, toplevel);
             break;
 
           case 'ip network':
-            processIp(object, dl);
+            processIp(object, dl, toplevel);
             break;
 
           default:
@@ -437,7 +444,10 @@
       }
 
       // process a domain
-      function processDomain(object, dl) {
+      function processDomain(object, dl, toplevel=false) {
+
+        if (toplevel) document.title = 'Domain ' + object.ldhName + ' - RDAP Lookup';
+
         addProperty(dl, 'Name:', object.ldhName);
         if (object.unicodeName) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
 
@@ -465,7 +475,9 @@
       }
 
       // process a nameserver
-      function processNameserver(object, dl) {
+      function processNameserver(object, dl, toplevel=false) {
+
+        if (toplevel) document.title = 'Nameserver ' + object.ldhName + ' - RDAP Lookup';
 
         addProperty(dl, 'Host Name:', object.ldhName);
         if (object.unicodeName) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
@@ -489,7 +501,9 @@
       }
 
       // process an entity
-      function processEntity(object, dl) {
+      function processEntity(object, dl, toplevel=false) {
+
+        if (toplevel) document.title = 'Entity ' + object.handle + ' - RDAP Lookup';
 
         if (object.handle) addProperty(dl, 'Handle:', object.handle);
 
@@ -586,12 +600,28 @@
       }
 
       // process an AS number
-      function processAutnum(object, dl) {
+      function processAutnum(object, dl, toplevel=false) {
+
+        if (toplevel) document.title = 'AS Number ' + object.handle + ' - RDAP Lookup';
+
+        if (object.name) addProperty(dl, 'Network Name:', object.name);
+        if (object.type) addProperty(dl, 'Network Type:', object.type);
+
         processCommonObjectProperties(object, dl);
       }
 
       // process an IP or IP block
-      function processIp(object, dl) {
+      function processIp(object, dl, toplevel=false) {
+
+        if (toplevel) document.title = 'IP Network ' + object.handle + ' - RDAP Lookup';
+
+        if (object.ipVersion) addProperty(dl, 'IP Version:', object.ipVersion);
+        if (object.startAddress && object.endAddress) addProperty(dl, 'Address Range:', object.startAddress + ' - ' + object.endAddress);
+        if (object.name) addProperty(dl, 'Network Name:', object.name);
+        if (object.type) addProperty(dl, 'Network Type:', object.type);
+        if (object.country) addProperty(dl, 'Country:', object.country);
+        if (object.parentHandle) addProperty(dl, 'Parent Network:', object.parentHandle);
+
         processCommonObjectProperties(object, dl);
       }
 
@@ -614,6 +644,26 @@
         link.appendChild(document.createTextNode(title));
 
         return link;
+      }
+
+      // check params of query string - called when page loads and when the back/forward buttons are used
+      function checkParams() {
+        var params = new URLSearchParams(window.location.search);
+
+        if (params.has('type')) {
+          var select = document.getElementById('type');
+          for (var i = 0 ; i < select.options.length ; i++) {
+            if (select.options.item(i).value == params.get('type')) {
+              select.selectedIndex = i;
+              break;
+            }
+          }
+        }
+
+        if (params.has('object')) {
+          document.getElementById('object').value = params.get('object');
+          doQuery();
+        }
       }
     </script>
   </head>
@@ -671,25 +721,11 @@
 
     <script>
       document.getElementById('object').focus();
-    
-      var params = new URLSearchParams(window.location.search);
-    
-      if (params.has('type')) {
-        var select = document.getElementById('type');
-        for (var i = 0 ; i < select.options.length ; i++) {
-          if (select.options.item(i).value == params.get('type')) {
-            select.selectedIndex = i;
-            break;
-          }
-        }
-      }
-    
-      if (params.has('object')) {
-        document.getElementById('object').value = params.get('object');
-    
-        doQuery();
-      }
-    </script>
 
+      checkParams();
+
+      window.onpopstate = checkParams;
+
+    </script>
   </body>
 </html>
