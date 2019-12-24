@@ -235,13 +235,27 @@
         var card = document.createElement('div');
         card.classList.add('card');
 
-        var body = document.createElement('div');
-        body.classList.add('card-body');
+        var titleText = cardTitles[object.objectClassName];
+        if (object.unicodeName) {
+          titleText += ' ' + object.unicodeName.toUpperCase();
 
+        } else if (object.ldhName) {
+          titleText += ' ' + object.ldhName.toUpperCase();
+
+        } else if (object.handle) {
+          titleText += ' ' + object.handle.toUpperCase();
+
+        }
+
+        if (object.handle) titleText += ' (' + object.handle + ')';
+        
         var title = document.createElement('div');
         title.classList.add('card-header', 'font-weight-bold');
-        title.appendChild(document.createTextNode(cardTitles[object.objectClassName] + (object.handle ? ' ' + object.handle : '')));
-        card .appendChild(title);
+        title.appendChild(document.createTextNode(titleText));
+        card.appendChild(title);
+
+        var body = document.createElement('div');
+        body.classList.add('card-body');
 
         body.appendChild(dl);
 
@@ -408,32 +422,30 @@
         var div = document.createElement('div');
 
         for (var i = 0 ; i < things.length ; i++) {
-          var tdiv = document.createElement('div');
+          var section = document.createElement('section');
+          section.classList.add('card');
+          div.appendChild(section);
 
-          var title = document.createElement('strong');
+          var title = document.createElement('header');
+          title.classList.add('card-header', 'font-weight-bold');
           title.appendChild(document.createTextNode(things[i].title));
-          tdiv.appendChild(title);
-          tdiv.appendChild(document.createElement('br'));
-          tdiv.appendChild(document.createElement('br'));
+          section.appendChild(title);
 
-          if (things[i].description) {
-            var body = document.createElement('div');
-            for (var j = 0 ; j < things[i].description.length ; j++) {
-              body.appendChild(document.createTextNode(things[i].description[j]));
-              body.appendChild(document.createElement('br'));
-            }
-            tdiv.appendChild(body);
+          var body = document.createElement('div');
+          body.classList.add('card-body');
+          section.appendChild(body);
+
+          if (things[i].description) for (var j = 0 ; j < things[i].description.length ; j++) {
+            var p = document.createElement('p');
+            p.appendChild(document.createTextNode(things[i].description[j]));
+            body.appendChild(p);
           }
 
           if (things[i].links) {
             var ldl = document.createElement('dl');
             processLinks(things[i].links, ldl);
-            tdiv.appendChild(ldl);
+            body.appendChild(ldl);
           }
-
-          tdiv.appendChild(document.createElement('br'));
-
-          div.appendChild(tdiv);
         }
 
         return div;
