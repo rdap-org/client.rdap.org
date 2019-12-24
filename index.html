@@ -13,6 +13,9 @@
       .card {
         margin-bottom:1em;
       }
+      dl {
+        margin:0;
+      }
     </style>
     <script>
       // keeps track of the elements we've created so we can assign a unique ID
@@ -235,20 +238,22 @@
         var card = document.createElement('div');
         card.classList.add('card');
 
-        var titleText = cardTitles[object.objectClassName];
+        var titleText = '';
         if (object.unicodeName) {
-          titleText += ' ' + object.unicodeName.toUpperCase();
+          titleText = object.unicodeName.toUpperCase();
 
         } else if (object.ldhName) {
-          titleText += ' ' + object.ldhName.toUpperCase();
+          titleText = object.ldhName.toUpperCase();
 
         } else if (object.handle) {
-          titleText += ' ' + object.handle.toUpperCase();
+          titleText = object.handle.toUpperCase();
 
         }
 
-        if (object.handle) titleText += ' (' + object.handle + ')';
-        
+        if (object.handle && object.handle != titleText) titleText += ' (' + object.handle + ')';
+
+        titleText = cardTitles[object.objectClassName] + ' ' + titleText;
+
         var title = document.createElement('div');
         title.classList.add('card-header', 'font-weight-bold');
         title.appendChild(document.createTextNode(titleText));
@@ -654,18 +659,43 @@
         return link;
       }
 
+      // guess the type from the input value
+      function guessType(object) {
+        var patterns = [
+          [ /^\d+$/, "autnum" ],
+          [ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/?\d*$/, "ip" ],
+          [ /^[0-9a-f:]{2,}\/?\d*$/, "ip" ],
+          [ /^https?:/, "url" ],
+          [ /^{/, "json" ],
+          [ /./, "domain" ],
+        ];
+        for (var i = 0 ; i < patterns.length ; i++) {
+          if (patterns[i][0].test(object)) {
+            setType(patterns[i][1]);
+            break;
+          }
+        }
+      }
+
+      // set the type of the object to be queried
+      function setType(type) {
+       var select = document.getElementById('type');
+       for (var i = 0 ; i < select.options.length ; i++) if (select.options.item(i).value == type) {
+          select.selectedIndex = i;
+          break;
+        }
+      }
+
       // check params of query string - called when page loads and when the back/forward buttons are used
       function checkParams() {
         var params = new URLSearchParams(window.location.search);
 
         if (params.has('type')) {
-          var select = document.getElementById('type');
-          for (var i = 0 ; i < select.options.length ; i++) {
-            if (select.options.item(i).value == params.get('type')) {
-              select.selectedIndex = i;
-              break;
-            }
-          }
+          setType(params.get('type'));
+
+        } else if (params.has('object')) {
+          guessType(params.get('object'));
+
         }
 
         if (params.has('object')) {
@@ -687,6 +717,7 @@
       <form onsubmit="doQuery();return false" class="form-inline">
         <div class="col" style="padding:0">
           <div class="input-group">
+
             <div class="input-group-prepend">
               <select class="custom-select" id="type" name="type" onchange="updatePlaceHolder(this.options[this.selectedIndex].value)">
                 <option value="domain" selected>Domain</option>
@@ -700,7 +731,7 @@
               </select>
             </div>
 
-            <input class="form-control" id="object" type="text" name="object" placeholder="example.com" />
+            <input class="form-control" id="object" type="text" name="object" placeholder="example.com" onkeyup="guessType(this.value)"/>
 
             <div class="input-group-append">
               <input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary"/>
@@ -713,8 +744,6 @@
       <br/>
 
       <div id="output-div"></div>
-
-      <br/>
 
       <p><strong>Note:</strong></p>
 
