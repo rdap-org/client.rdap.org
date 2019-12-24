@@ -15,8 +15,6 @@
       }
     </style>
     <script>
-      var RDAP_MEDIA_TYPE = 'application/rdap+json';
-
       // keeps track of the elements we've created so we can assign a unique ID
       var elementCounter = 123456;
 
@@ -138,8 +136,6 @@
           xhr.open('GET', url);
           xhr.timeout = 25000;
           xhr.responseType = 'json';
-
-          xhr.setRequestHeader('Accept', RDAP_MEDIA_TYPE);
 
           xhr.ontimeout = function() {
             document.getElementById('type').disabled = false;
@@ -365,12 +361,12 @@
           var title = (links[i].title ? links[i].title : links[i].href);
 
           var link;
-          if (links[i].type && 0 == links[i].type.indexOf(RDAP_MEDIA_TYPE)) {
+          if (links[i].type && 0 == links[i].type.indexOf('application/rdap+json')) {
             link = createRDAPLink(links[i].href, title);
 
           } else {
             link = document.createElement('a');
-                  link.rel = 'noopener';
+            link.rel = 'noopener';
             link.title = link.href = links[i].href;
             link.target = '_new';
             link.appendChild(document.createTextNode(title));
