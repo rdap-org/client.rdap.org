@@ -459,10 +459,16 @@
       // process a domain
       function processDomain(object, dl, toplevel=false) {
 
-        if (toplevel) document.title = 'Domain ' + object.ldhName + ' - RDAP Lookup';
+        if (toplevel) document.title = 'Domain ' + (object.unicodeName ? object.unicodeName : object.ldhName).toUpperCase() + ' - RDAP Lookup';
 
-        addProperty(dl, 'Name:', object.ldhName);
-        if (object.unicodeName) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
+        if (object.unicodeName) {
+          addProperty(dl, 'Name:', object.unicodeName);
+          addProperty(dl, 'ASCII Name:', object.ldhName);
+
+        } else {
+          addProperty(dl, 'Name:', object.ldhName);
+
+        }
 
         if (object.handle) addProperty(dl, 'Handle:', object.handle);
 
