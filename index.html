@@ -363,9 +363,20 @@
         var sdl = document.createElement('dl');
 
         for (var i = 0 ; i < events.length ; i++) {
-          text = new Date(events[i].eventDate).toLocaleString();
-          if (events[i].eventActor) text += ' by ' + events[i].eventActor;
-          addProperty(sdl, events[i].eventAction + ':', text);
+          var span1 = document.createElement('span');
+          span1.appendChild(document.createTextNode(new Date(events[i].eventDate).toLocaleString()));
+          span1.classList.add('rdap-event-time');
+          span1.setAttribute('title', events[i].eventDate);
+
+          var span2 = document.createElement('span');
+          span2.appendChild(span1);
+
+          if (events[i].eventActor) {
+                var em = document.createElement('em');
+                em.appendChild(document.createElement(' by ' + events[i].eventActor));
+                span2.appendChild(em);
+          }
+          addProperty(sdl, events[i].eventAction + ':', span2);
         }
 
         addProperty(dl, 'Events:', sdl);
