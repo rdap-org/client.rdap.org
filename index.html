@@ -593,9 +593,11 @@
 
         if (object.roles) addProperty(dl, 'Roles:', createList(object.roles));
 
-        if (object.vcardArray && object.vcardArray[1]) {
-          var vdl = processVCardArray(object.vcardArray[1]);
-          addProperty(dl, 'Contact Information:', vdl);
+        if (object.jscard) {
+          addProperty(dl, 'Contact Information:', processJSCard(object.jscard));
+
+        } else if (object.vcardArray && object.vcardArray[1]) {
+          addProperty(dl, 'Contact Information:', processVCardArray(object.vcardArray[1]));
         }
 
         processCommonObjectProperties(object, dl);
@@ -677,6 +679,77 @@
         }
 
         return vdl;
+      }
+
+      function processJSCard(jscard) {
+        var vdl = document.createElement('dl');
+
+        if (jscard.fullName) addProperty(vdl, 'Name:', jscard.fullName);
+
+        if (jscard.organizations) {
+          for (const k in jscard.organizations) {
+            addProperty(vdl, 'Organization:', jscard.organizations[k].name);
+          }
+        }
+
+        if (jscard.addresses) {
+          for (const k in jscard.addresses) {
+            addProperty(vdl, 'Address:', processJSCardAddress(jscard.addresses[k]));
+          }
+        }
+
+        if (jscard.emails) {
+          for (const k in jscard.emails) {
+            var link = document.createElement('a');
+            link.href = 'mailto:' + jscard.emails[k].email;
+            link.appendChild(document.createTextNode(jscard.emails[k].email));
+
+            addProperty(vdl, 'Email Address:', link);
+          }
+        }
+
+        if (jscard.phones) {
+          for (const k in jscard.phones) {
+            var link = document.createElement('a');
+            link.href = jscard.phones[k].phone;
+            link.appendChild(document.createTextNode(jscard.phones[k].phone));
+
+            addProperty(vdl, (jscard.phones[k].features.fax ? 'Fax:' : 'Phone:'), link);
+          }
+        }
+
+        return vdl;
+      }
+
+      function processJSCardAddress(address) {
+        console.log(address);
+        var dl = document.createElement('dl');
+        for (k in address) {
+          v = address[k];
+          console.log(k + ' = ' + v);
+          if ('street' == k) {
+            var addr = document.createElement('span');
+            for (var i = 0 ; i < v.length ; i++) {
+              if (i > 1) addr.appendChild(document.createElement('br'));
+              addr.appendChild(document.createTextNode(v[i]));
+            }
+            addProperty(dl, 'Street:', addr);
+
+          } else if ('locality' == k) {
+            addProperty(dl, 'City:', v);
+
+          } else if ('region' == k) {
+            addProperty(dl, 'State/Province:', v);
+
+          } else if ('postcode' == k) {
+            addProperty(dl, 'Postal Code:', v);
+
+          } else if ('countryCode' == k) {
+            addProperty(dl, 'Country:', v);
+
+          }
+        }
+        return dl;
       }
 
       // process an AS number
