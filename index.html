@@ -232,7 +232,7 @@
                   window.history.pushState(null, window.title, url.href);
 
           } catch (e) {
-            handleError('Exception: ' + e.message);
+            handleError('Exception: ' + e.message + '(line ' + e.lineNumber + ')');
 
           }
         }
