@@ -132,7 +132,7 @@
           // run the callback with a mock XHR
           handleResponse({
             "status": 200,
-            "responseText": url.substring(7)
+            "response": JSON.parse(url.substring(7))
           });
 
         } else {
