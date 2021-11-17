@@ -885,8 +885,8 @@
       <div class="container" style="padding:0;font-size:small;font-style:italic;color:#aaa">
         <div class="col" style="padding:0">
           <label for="request-jscontact">
-            <input name="request-jscontact" id="request-jscontact" type="checkbox" checked>
-            Request JSContact (if available)
+            <input name="request-jscontact" id="request-jscontact" type="checkbox">
+            Request JSContact (experimental)
           </label>
         </div>
       </div>
@@ -899,7 +899,6 @@
         <li>To see which TLDs support RDAP, <a href="https://deployment.rdap.org" target="_new">click here</a>.</li>
         <li>This page uses the <a href="https://about.rdap.org/">RDAP.org</a> service, so your queries are sent to that server, but the RDAP responses themselves come directly from the registry (or registrar) servers.</li>
         <li>Queries for top-level domains and ICANN-accredited registrars do not use the IANA bootstrap registries; instead these queries are sent to the {root,registrars}.rdap.org servers.</li>
-        <li>It <em>should</em> be OK to leave "Request JSContact" checked, but if you get odd 400 errors from RDAP servers, consider turning it off.</li>
         <li>To submit feedback, <a href="mailto:feedback@rdap.org">click here</a>. Please contact the registries if you have any issues with the contents of RDAP responses.</li>
         <li>The RDAP Web Client is Free Software; for the license, <a href="LICENSE">click here</a>. To fork a copy of the git repository, <a href="https://gitlab.centralnic.com/centralnic/rdap-web-client">click here</a>.</li>
       </ul>
