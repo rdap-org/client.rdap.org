@@ -845,7 +845,7 @@
           doQuery();
         }
 
-        } else if (params.has('request-jscontact') && 1 == params.get('request-jscontact')) {
+        if (params.has('request-jscontact') && 1 == params.get('request-jscontact')) {
           document.getElementById('request-jscontact').checked = true;
         }
       }
