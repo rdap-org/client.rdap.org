@@ -229,7 +229,7 @@
 
                   var url = document.createElement('a');
                   url.href = window.location.href;
-                  url.search = '?type=' + escape(document.getElementById('type').value) + '&object=' + escape(document.getElementById('object').value);
+                  url.search = '?type=' + escape(document.getElementById('type').value) + '&object=' + escape(document.getElementById('object').value) + (document.getElementById('request-jscontact').checked ? '&request-jscontact=1' : '');
 
                   window.history.pushState(null, window.title, url.href);
 
@@ -843,6 +843,10 @@
         if (params.has('object')) {
           document.getElementById('object').value = params.get('object');
           doQuery();
+        }
+
+        } else if (params.has('request-jscontact') && 1 == params.get('request-jscontact')) {
+          document.getElementById('request-jscontact').checked = true;
         }
       }
     </script>
