@@ -30,6 +30,7 @@
         padding:0.25em 0 0 0;
       }
     </style>
+    <script src="assets/ipaddr.js/ipaddr.min.js"></script>
     <script>
       // see https://www.iana.org/assignments/rdap-json-values
       var rdapStatusInfo = {
@@ -162,7 +163,7 @@
         }
 
         if (!url) {
-          handleError('No RDAP URL available for ' + typeval + ' ' + object + ' (the registry may not have deployed RDAP yet).');
+          handleError('No RDAP URL available for ' + typeval + ' ' + object + '.');
 
         } else {
           sendQuery(url);
@@ -172,20 +173,6 @@
 
       // construct an RDAP URL for the given object
       function getRDAPURL(typeval, object) {
-        if ('ip' == typeval) {
-          // no support for IP addresses yet!
-          return 'https://rdap.org/' + typeval + '/' + object;
-
-        } else if (registryData[typeval]) {
-          if ('domain' == typeval || 'autnum' == typeval || 'entity' == typeval) {
-            return scanRegistry(typeval, object);
-          }
-        }
-
-        return false;
-      }
-
-      function scanRegistry(typeval, object) {
         var urls;
 
         services:
@@ -207,6 +194,9 @@
 
             } else if ('entity' == typeval) {
               match = entityMatch(range, object);
+
+            } else if ('ip' == typeval) {
+              match = ipMatch(range, object);
 
             }
 
@@ -245,6 +235,12 @@
 
       function entityMatch(tag, handle) {
         return handle.toUpperCase().endsWith('-' + tag.toUpperCase());
+      }
+
+      function ipMatch(prefix, ip) {
+        var ip = ipaddr.parse(ip);
+        var prefix = ipaddr.parseCIDR(prefix);
+        return (ip.kind() == prefix[0].kind() && ip.match(prefix));
       }
 
       // return the first HTTPS url, or the first URL
@@ -997,7 +993,10 @@
 
           }
 
-          if (++loadedRegistries == Object.keys(registryURLs).length) activateUserInteface();
+          if (++loadedRegistries == Object.keys(registryURLs).length) {
+            registryData.ip = registryData.ip4.concat(registryData.ip6);
+            activateUserInteface();
+          }
         }
       }
 
@@ -1038,7 +1037,7 @@
               </select>
             </div>
 
-            <input class="form-control" id="object" type="text" name="object" placeholder="example.com" onkeyup="guessType(this.value)"/>
+            <input class="form-control" id="object" type="text" name="object" placeholder="example.com" onkeyup="guessType(this.value)" required/>
 
             <div class="input-group-append">
               <input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary" disabled/>
@@ -1061,11 +1060,12 @@
       <p><strong>Notes:</strong></p>
 
       <ul>
-        <li>As of November 22 2021, this page uses the IANA bootstrap registries natively for domains, ASNs and entities, so only the registry/registrar RDAP server sees your queries for those object types. For now, RDAP.org is still used for IP queries.</li>
+        <li>As of November 24 2021, this page uses the IANA bootstrap registries natively for all query types!</li>
         <li>To see which TLDs support RDAP, <a href="https://deployment.rdap.org" target="_new">click here</a>.</li>
         <li>There is no bootstrap registry for top-level domains or ICANN-accredited registrars; instead these queries are sent to the {root,registrars}.rdap.org servers.</li>
         <li>To submit feedback, <a href="mailto:feedback@rdap.org">click here</a>. Please contact the registries/registrars if you have any issues with the contents of RDAP responses.</li>
         <li>The RDAP Web Client is Free Software; for the license, <a href="LICENSE">click here</a>. To fork a copy of the git repository, <a href="https://gitlab.centralnic.com/centralnic/rdap-web-client">click here</a>.</li>
+        <li>This page uses <a rel="noopener" target="_new" href="https://github.com/whitequark/ipaddr.js/">ipaddr.js</a> by <a rel="noopener" target="_new" href="https://whitequark.org/">whitequark</a>.</li>
       </ul>
 
     </div>
