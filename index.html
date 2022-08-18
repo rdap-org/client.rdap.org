@@ -2,11 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8"/>
-    <title>RDAP Lookup</title>
+    <title>RDAP Lookup - a private domain name lookup tool</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./assets/bootstrap.min.css?v=2021112213" />
     <link rel="shortcut icon" href="./assets/shortcut-icon.svg?v=2021112213" />
+    <meta name="description" content="A completely private domain name lookup tool using RDAP (the replacement for Whois)" />
+    <meta name="keywords" content="rdap, whois, rdap, domain name, dns, ip address" />
     <style>
       dd {
         margin: 0.5em 0 1em 2em;
@@ -30,7 +32,7 @@
         padding:0.25em 0 0 0;
       }
     </style>
-    <script src="assets/ipaddr.js/ipaddr.min.js"></script>
+    <script src="assets/ipaddr.js/ipaddr.min.js?v=2021122209"></script>
     <script>
       // see https://www.iana.org/assignments/rdap-json-values
       var rdapStatusInfo = {
@@ -143,6 +145,8 @@
 
         var queryParams = (document.getElementById('request-jscontact').checked ? '?jscard=1' : '');
 
+        var followReferral = document.getElementById('follow-referral').checked;
+
         var url;
         if ('url' == typeval) {
           url = object;
@@ -166,7 +170,7 @@
           handleError('No RDAP URL available for ' + typeval + ' ' + object + '.');
 
         } else {
-          sendQuery(url);
+          sendQuery(url, followReferral);
 
         }
       }
@@ -283,7 +287,7 @@
       }
 
       // disable the user interface, initiate an XHR
-      function sendQuery(url) {
+      function sendQuery(url, followReferral=false) {
         document.getElementById('type').disabled = true;
         document.getElementById('object').disabled = true;
         document.getElementById('button').disabled = true;
@@ -311,7 +315,7 @@
             handleError('Timeout performing query, please try again later.');
           };
 
-          xhr.onload = function() { handleResponse(xhr); };
+          xhr.onload = function() { handleResponse(xhr, followReferral); };
 
           xhr.send();
         }
@@ -332,7 +336,7 @@
       }
 
       // callback executed when a response is received
-      function handleResponse(xhr) {
+      function handleResponse(xhr, followReferral=false) {
         document.getElementById('type').disabled = false;
         document.getElementById('object').disabled = false;
         document.getElementById('button').disabled = false;
@@ -341,6 +345,18 @@
           handleError(xhr.status + ' error: ' + xhr.statusText);
 
         } else {
+          if (followReferral && xhr.response.links) {
+            for (var i = 0 ; i < xhr.response.links.length ; i++) {
+              var l = xhr.response.links[i];
+
+              if ('related' == l.rel && 'application/rdap+json' == l.type && l.href.match(/^(https?:|)\/\//i)) {
+                sendQuery(l.href, false);
+                return;
+
+              }
+            }
+          }
+
           try {
                   var div = document.getElementById('output-div');
                   div.innerHTML = '';
@@ -348,7 +364,10 @@
 
                   var url = document.createElement('a');
                   url.href = window.location.href;
-                  url.search = '?type=' + escape(document.getElementById('type').value) + '&object=' + escape(document.getElementById('object').value) + (document.getElementById('request-jscontact').checked ? '&request-jscontact=1' : '');
+                  url.search = '?type=' + escape(document.getElementById('type').value) +
+                                '&object=' + escape(document.getElementById('object').value) +
+                                (document.getElementById('request-jscontact').checked ? '&request-jscontact=1' : '') + 
+                                (document.getElementById('follow-referral').checked ? '&follow-referral=1' : '');
 
                   window.history.pushState(null, window.title, url.href);
 
@@ -357,13 +376,15 @@
 
           }
         }
-
       }
 
       // process an RDAP object. Argument is a JSON object, return
       // value is an element that can be inserted into the page
-      function processObject(object, toplevel) {
-        if (!object) return false;
+      function processObject(object, toplevel, followReferral=true) {
+        if (!object) {
+          console.log(object);
+          return false;
+        }
 
         var dl = document.createElement('dl');
 
@@ -715,6 +736,9 @@
         if (object.jscard) {
           addProperty(dl, 'Contact Information:', processJSCard(object.jscard));
 
+        } else if (object.jscard_0) {
+          addProperty(dl, 'Contact Information:', processJSCard(object.jscard_0));
+
         } else if (object.vcardArray && object.vcardArray[1]) {
           addProperty(dl, 'Contact Information:', processVCardArray(object.vcardArray[1]));
         }
@@ -789,6 +813,15 @@
 
             var link = document.createElement('a');
             link.href = 'mailto:' + value;
+            link.appendChild(document.createTextNode(value));
+
+            value = link;
+
+          } else if ('contact-uri' == type) {
+            type = 'Contact URL';
+
+            var link = document.createElement('a');
+            link.href = value;
             link.appendChild(document.createTextNode(value));
 
             value = link;
@@ -959,13 +992,17 @@
 
         }
 
+        if (params.has('request-jscontact') && 1 == params.get('request-jscontact')) {
+          document.getElementById('request-jscontact').checked = true;
+        }
+
+        if (params.has('follow-referral') && 1 == params.get('follow-referral')) {
+          document.getElementById('follow-referral').checked = true;
+        }
+
         if (params.has('object')) {
           document.getElementById('object').value = params.get('object');
           doQuery();
-        }
-
-        if (params.has('request-jscontact') && 1 == params.get('request-jscontact')) {
-          document.getElementById('request-jscontact').checked = true;
         }
       }
 
@@ -1047,25 +1084,29 @@
       </form>
 
       <div class="container" style="padding:0;font-size:small;font-style:italic;color:#aaa">
-        <div class="col" style="padding:0">
+        <div class="col" style="padding:0.75em 0 0.25em 0">
+          Options:&nbsp;
           <label for="request-jscontact">
             <input name="request-jscontact" id="request-jscontact" type="checkbox">
-            Request JSContact (experimental)
+            Request JSContact
+          </label>
+          &nbsp;
+          <label for="follow-referral">
+            <input name="follow-referral" id="follow-referral" type="checkbox">
+            Follow referral to registrar's RDAP record
           </label>
         </div>
       </div>
 
       <div id="output-div"></div>
 
-      <p><strong>Notes:</strong></p>
-
+      <p>This page implements a <em>completely private lookup tool</em> for domain names, IP addresses and Autonymous System Numbers (ASNs). Only the relevant registry sees your query: your browser will directly connect to the registry's RDAP server using an encrypted HTTPS connection to protect the confidentiality of your query. If you click the "Follow referral to registrar's RDAP record" checkbox, then the sponsoring registrar may also see your query.</p>
       <ul>
         <li><a href="https://about.rdap.org" target="_new">Click here</a> for more information about what RDAP is and how it differs from traditional Whois.</li>
-        <li>As of November 24 2021, this page uses the IANA bootstrap registries natively for all query types!</li>
         <li>Most generic TLDs now support RDAP, but only a few ccTLDs have deployed RDAP so far. To see which TLDs support RDAP, <a href="https://deployment.rdap.org" target="_new">click here</a>.</li>
         <li>There is no bootstrap registry for top-level domains or ICANN-accredited registrars; instead these queries are sent to the <a href="https://about.rdap.org/#additional" target="_new">{root,registrars}.rdap.org servers</a>.</li>
         <li>To submit feedback, <a href="mailto:feedback@rdap.org">click here</a>. Please contact the relevant registry or registrar if you have an issue with the content of an RDAP response.</li>
-        <li>The RDAP Web Client is Free Software; for the license, <a href="LICENSE">click here</a>. To fork a copy of the git repository, <a rel="noopener" target="_new" href="https://gitlab.centralnic.com/centralnic/rdap-web-client">click here</a>.</li>
+        <li>This tool is Free Software; for the license, <a href="LICENSE">click here</a>. To fork a copy of the git repository, <a rel="noopener" target="_new" href="https://gitlab.centralnic.com/centralnic/rdap-web-client">click here</a>.</li>
         <li>This page uses <a rel="noopener" target="_new" href="https://github.com/whitequark/ipaddr.js/">ipaddr.js</a> by <a rel="noopener" target="_new" href="https://whitequark.org/">whitequark</a>.</li>
       </ul>
 
