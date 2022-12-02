@@ -341,7 +341,10 @@
         document.getElementById('object').disabled = false;
         document.getElementById('button').disabled = false;
 
-        if (200 != xhr.status) {
+        if (404 == xhr.status) {
+          handleError('This object does not exist.');
+
+        } else if (200 != xhr.status) {
           handleError(xhr.status + ' error: ' + xhr.statusText);
 
         } else {
@@ -414,7 +417,7 @@
               return createErrorNode(object.errorCode + ' error: ' + object.title);
 
             } else {
-              return createErrorNode("unknown object type '" + object.objectClassName + "'");
+              processUnknown(object, dl, toplevel);
 
             }
         }
@@ -436,7 +439,16 @@
 
         if (object.handle && object.handle != titleText) titleText += ' (' + object.handle + ')';
 
-        titleText = cardTitles[object.objectClassName] + ' ' + titleText;
+        if (titleText.length > 0) {
+          titleText = cardTitles[object.objectClassName] + ' ' + titleText;
+
+        } else if (!toplevel) {
+          titleText = cardTitles[object.objectClassName];
+
+        } else {
+          titleText = 'Response';
+
+        }
 
         var title = document.createElement('div');
         title.classList.add('card-header', 'font-weight-bold');
@@ -643,7 +655,7 @@
 
           if (things[i].description) for (var j = 0 ; j < things[i].description.length ; j++) {
             var p = document.createElement('p');
-            p.appendChild(document.createTextNode(things[i].description[j]));
+            p.innerHTML = convertURLstoLinks(things[i].description[j]);
             body.appendChild(p);
           }
 
@@ -655,6 +667,14 @@
         }
 
         return div;
+      }
+
+      // naively match URLs in plain text and convert to links
+      function convertURLstoLinks(str) {
+        return str.replace(
+          /(https?:\/\/[^\s]+[^\.])/g,
+          '<a href="$1" target="_new" rel="noopener">$1</a>'
+        );
       }
 
       // process a domain
@@ -928,7 +948,21 @@
         if (object.type) addProperty(dl, 'Network Type:', object.type);
         if (object.country) addProperty(dl, 'Country:', object.country);
         if (object.parentHandle) addProperty(dl, 'Parent Network:', object.parentHandle);
+        if (object.cidr0_cidrs) addProperty(dl, 'CIDR Prefix(es):', processCIDRs(object.cidr0_cidrs));
 
+        processCommonObjectProperties(object, dl);
+      }
+
+      function processCIDRs(cidrs) {
+        var list = document.createElement('ul');
+        for (i = 0 ; i < cidrs.length ; i++) {
+          var cidr = (cidrs[i].v6prefix ? cidrs[i].v6prefix : cidrs[i].v4prefix) + '/' + cidrs[i].length;
+          list.appendChild(document.createElement('li')).appendChild(createRDAPLink('https://rdap.org/ip/' + cidr, cidr));
+        }
+        return list;
+      }
+
+      function processUnknown(object, dl, toplevel=false) {
         processCommonObjectProperties(object, dl);
       }
 
