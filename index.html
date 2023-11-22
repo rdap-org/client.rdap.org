@@ -131,9 +131,19 @@
             input.placeholder = '{ (paste JSON) }';
             break;
 
-          default:    
+          default:
             input.placeholder = 'example.com';
         }
+      }
+
+      function createXHR(url) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url);
+        xhr.timeout = 25000;
+        xhr.responseType = 'json';
+
+        return xhr;
       }
 
       // event handler for when the submit button is pressed, or
@@ -143,7 +153,7 @@
         var typeval = type.options[type.selectedIndex].value;
         var object  = document.getElementById('object').value.toLowerCase();
 
-        var queryParams = (document.getElementById('request-jscontact').checked ? '?jscard=1' : '');
+        var queryParams = '?jscard=1';
 
         var followReferral = document.getElementById('follow-referral').checked;
 
@@ -270,7 +280,7 @@
 
         var div = document.getElementById('output-div');
         div.innerHTML = '';
-    
+
         var spinner = document.createElement('div');
         spinner.classList.add('spinner-border');
         spinner.role = 'status';
@@ -287,12 +297,8 @@
       }
 
       // disable the user interface, initiate an XHR
-      function sendQuery(url, followReferral=false) {
-        document.getElementById('type').disabled = true;
-        document.getElementById('object').disabled = true;
-        document.getElementById('button').disabled = true;
-
-        showSpinner('Sending request...');    
+      function sendQuery(url, followReferral=false, followingReferral=true) {
+        freezeUI();
 
         if (0 == url.indexOf('json://')) {
           // run the callback with a mock XHR
@@ -302,20 +308,41 @@
           });
 
         } else {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', url);
-          xhr.timeout = 25000;
-          xhr.responseType = 'json';
+          let xhr = createXHR(url);
 
           xhr.ontimeout = function() {
-            document.getElementById('type').disabled = false;
-            document.getElementById('object').disabled = false;
-            document.getElementById('button').disabled = false;
-
+            thawUI();
             handleError('Timeout performing query, please try again later.');
           };
 
           xhr.onload = function() { handleResponse(xhr, followReferral); };
+
+          xhr.onreadystatechange = function() {
+            if (4 == xhr.readyState && xhr.status < 1) {
+              //
+              // this condition happens when an RDAP server - usually a
+              // registrar's RDAP server - doesn't send the
+              // Access-Control-Allow-Origin header. Browsers are not supposed
+              // to allow JavaScript code to detect this condition (to make it
+              // harder to perform XSRF attacks) but this seems to work in
+              // Chrome and Safari - for now...
+              //
+
+              thawUI();
+
+              let msg = 'Unable to perform query. This may be because the '
+                            + 'RDAP server is not properly setting the '
+                            + 'Access-Control-Allow-Origin header. If the '
+                            + 'problem persists, please contact the server '
+                            + 'operator to report the issue.';
+
+              if (followingReferral) msg = msg + ' In the meantime, uncheck'
+                + ' the "Follow referral to registrar\'s RDAP record" checkbox'
+                + ' and try again.';
+
+              handleError(msg);
+            }
+          };
 
           xhr.send();
         }
@@ -337,9 +364,7 @@
 
       // callback executed when a response is received
       function handleResponse(xhr, followReferral=false) {
-        document.getElementById('type').disabled = false;
-        document.getElementById('object').disabled = false;
-        document.getElementById('button').disabled = false;
+        thawUI();
 
         if (404 == xhr.status) {
           handleError('This object does not exist.');
@@ -353,7 +378,7 @@
               var l = xhr.response.links[i];
 
               if ('related' == l.rel && 'application/rdap+json' == l.type && l.href.match(/^(https?:|)\/\//i)) {
-                sendQuery(l.href, false);
+                sendQuery(l.href, false, true);
                 return;
 
               }
@@ -361,18 +386,17 @@
           }
 
           try {
-                  var div = document.getElementById('output-div');
-                  div.innerHTML = '';
-                  div.appendChild(processObject(xhr.response, true));
+            var div = document.getElementById('output-div');
+            div.innerHTML = '';
+            div.appendChild(processObject(xhr.response, true));
 
-                  var url = document.createElement('a');
-                  url.href = window.location.href;
-                  url.search = '?type=' + escape(document.getElementById('type').value) +
-                                '&object=' + escape(document.getElementById('object').value) +
-                                (document.getElementById('request-jscontact').checked ? '&request-jscontact=1' : '') + 
-                                (document.getElementById('follow-referral').checked ? '&follow-referral=1' : '');
+            var url = document.createElement('a');
+            url.href = window.location.href;
+            url.search = '?type=' + escape(document.getElementById('type').value) +
+                          '&object=' + escape(document.getElementById('object').value) +
+            (document.getElementById('follow-referral').checked ? '&follow-referral=1' : '');
 
-                  window.history.pushState(null, window.title, url.href);
+            window.history.pushState(null, window.title, url.href);
 
           } catch (e) {
             handleError('Exception: ' + e.message + '(line ' + e.lineNumber + ')');
@@ -966,7 +990,7 @@
         processCommonObjectProperties(object, dl);
       }
 
-      // given an object, return the "self" URL (if any) 
+      // given an object, return the "self" URL (if any)
       function getSelfLink(object) {
         if (object.links) for (var i = 0 ; i < object.links.length ; i++) if ('self' == object.links[i].rel) return object.links[i].href;
 
@@ -1026,10 +1050,6 @@
 
         }
 
-        if (params.has('request-jscontact') && 1 == params.get('request-jscontact')) {
-          document.getElementById('request-jscontact').checked = true;
-        }
-
         if (params.has('follow-referral') && 1 == params.get('follow-referral')) {
           document.getElementById('follow-referral').checked = true;
         }
@@ -1043,10 +1063,9 @@
       function loadRegistries(callback) {
         showSpinner('Loading bootstrap registries...');
         for (url in registryURLs) {
-          let xhr = new XMLHttpRequest();
-          xhr.open('GET', url);
-          xhr.timeout = 25000;
-          xhr.responseType = 'json';
+          let xhr = createXHR(url);
+
+          xhr.ontimeout = function() { handleError('There was an error retrieving one or more IANA registries. Please try again later.'); };
 
           xhr.onload = function() { handleRegistryResponse(xhr); };
 
@@ -1066,12 +1085,26 @@
 
           if (++loadedRegistries == Object.keys(registryURLs).length) {
             registryData.ip = registryData.ip4.concat(registryData.ip6);
-            activateUserInteface();
+            activateUI();
           }
         }
       }
 
-      function activateUserInteface() {
+      function freezeUI() {
+        document.getElementById('type').disabled = true;
+        document.getElementById('object').disabled = true;
+        document.getElementById('button').disabled = true;
+
+        showSpinner('Sending request...');
+      }
+
+      function thawUI() {
+        document.getElementById('type').disabled = false;
+        document.getElementById('object').disabled = false;
+        document.getElementById('button').disabled = false;
+      }
+
+      function activateUI() {
         document.getElementById('output-div').innerHTML = '';
         document.getElementById('object').focus();
         document.getElementById('button').disabled = false;
@@ -1137,12 +1170,6 @@
 
       <div class="container" style="padding:0;font-size:small;font-style:italic;color:#aaa">
         <div class="col" style="padding:0.75em 0 0.25em 0">
-          Options:&nbsp;
-          <label for="request-jscontact">
-            <input name="request-jscontact" id="request-jscontact" type="checkbox">
-            Request JSContact
-          </label>
-          &nbsp;
           <label for="follow-referral">
             <input name="follow-referral" id="follow-referral" type="checkbox">
             Follow referral to registrar's RDAP record
