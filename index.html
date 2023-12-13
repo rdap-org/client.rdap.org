@@ -153,6 +153,10 @@
         var typeval = type.options[type.selectedIndex].value;
         var object  = document.getElementById('object').value.toLowerCase();
 
+        if ('autnum' == typeval) {
+          object = object.replace(/^asn?/i, '');
+        }
+
         var queryParams = '?jscard=1';
 
         var followReferral = document.getElementById('follow-referral').checked;
@@ -1014,11 +1018,12 @@
       // guess the type from the input value
       function guessType(object) {
         var patterns = [
-          [ /^\d+$/, "autnum" ],
+          [ /^(asn?|)\d+$/i, "autnum" ],
           [ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/?\d*$/, "ip" ],
-          [ /^[0-9a-f:]{2,}\/?\d*$/, "ip" ],
-          [ /^https?:/, "url" ],
+          [ /^[0-9a-f:]{2,}\/?\d*$/i, "ip" ],
+          [ /^https?:/i, "url" ],
           [ /^{/, "json" ],
+          [ /^(xn--[a-z0-9]|[a-z][a-z0-9\-]*[a-z])$/i, "tld" ],
           [ /./, "domain" ],
         ];
         for (var i = 0 ; i < patterns.length ; i++) {
