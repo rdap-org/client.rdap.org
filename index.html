@@ -403,7 +403,7 @@
             window.history.pushState(null, window.title, url.href);
 
           } catch (e) {
-            handleError('Exception: ' + e.message + '(line ' + e.lineNumber + ')');
+            handleError('Exception: "' + e.message + '" on line ' + e.lineNumber);
 
           }
         }
@@ -441,7 +441,7 @@
             break;
 
           default:
-            if (object.errorCode) {
+            if (object.hasOwnProperty("errorCode")) {
               return createErrorNode(object.errorCode + ' error: ' + object.title);
 
             } else {
@@ -454,18 +454,18 @@
         card.classList.add('card');
 
         var titleText = '';
-        if (object.unicodeName) {
+        if (object.hasOwnProperty("unicodeName")) {
           titleText = object.unicodeName.toUpperCase();
 
-        } else if (object.ldhName) {
+        } else if (object.hasOwnProperty("ldhName")) {
           titleText = object.ldhName.toUpperCase();
 
-        } else if (object.handle) {
+        } else if (object.hasOwnProperty("handle")) {
           titleText = object.handle.toUpperCase();
 
         }
 
-        if (object.handle && object.handle != titleText) titleText += ' (' + object.handle + ')';
+        if (object.hasOwnProperty("handle") && object.handle != titleText) titleText += ' (' + object.handle + ')';
 
         if (titleText.length > 0) {
           titleText = cardTitles[object.objectClassName] + ' ' + titleText;
@@ -474,7 +474,7 @@
           titleText = cardTitles[object.objectClassName];
 
         } else {
-          titleText = 'Response';
+          titleText = 'Response (unknown object type)';
 
         }
 
@@ -516,17 +516,15 @@
       // properties. the first argument is the RDAP object and the second is the <dl> element
       // being used to display that object.
       function processCommonObjectProperties(object, dl) {
-        // if (object.objectClassName) addProperty(dl, 'Object Type:', object.objectClassName);
-        // if (object.handle) addProperty(dl, 'Handle:', object.handle);
-        if (object.status) processStatus(object.status, dl);
-        if (object.events) processEvents(object.events, dl);
-        if (object.entities) processEntities(object.entities, dl);
-        if (object.remarks) processRemarks(object.remarks, dl);
-        if (object.notices) processNotices(object.notices, dl);
-        if (object.links) processLinks(object.links, dl);
-        if (object.lang) addProperty(dl, 'Language:', object.lang);
-        if (object.port43) addProperty(dl, 'Whois Server:', object.port43);
-        if (object.rdapConformance) processrdapConformance(object.rdapConformance, dl);
+        if (object.hasOwnProperty("status")) processStatus(object.status, dl);
+        if (object.hasOwnProperty("events")) processEvents(object.events, dl);
+        if (object.hasOwnProperty("entities")) processEntities(object.entities, dl);
+        if (object.hasOwnProperty("remarks")) processRemarks(object.remarks, dl);
+        if (object.hasOwnProperty("notices")) processNotices(object.notices, dl);
+        if (object.hasOwnProperty("links")) processLinks(object.links, dl);
+        if (object.hasOwnProperty("lang")) addProperty(dl, 'Language:', object.lang);
+        if (object.hasOwnProperty("port43")) addProperty(dl, 'Whois Server:', object.port43);
+        if (object.hasOwnProperty("rdapConformance")) processrdapConformance(object.rdapConformance, dl);
 
         var div = document.createElement('div');
         div.id = 'element-' + ++elementCounter;
@@ -603,7 +601,7 @@
           span2.appendChild(span1);
 
           if (events[i].eventActor) {
-                span2.appendChild(document.createTextNode(' (by ' + events[i].eventActor + ')'));
+            span2.appendChild(document.createTextNode(' (by ' + events[i].eventActor + ')'));
           }
           addProperty(sdl, events[i].eventAction + ':', span2);
         }
@@ -621,7 +619,7 @@
           var title = (links[i].title ? links[i].title : links[i].href);
 
           var link;
-          if (links[i].type && 0 == links[i].type.indexOf('application/rdap+json')) {
+          if (links[i].hasOwnProperty("type") && 0 == links[i].type.indexOf('application/rdap+json')) {
             link = createRDAPLink(links[i].href, title);
 
           } else {
@@ -635,7 +633,7 @@
 
           li.appendChild(link);
 
-          if (links[i].rel) li.appendChild(document.createTextNode(' (' + links[i].rel + ')'));
+          if (links[i].hasOwnProperty("rel")) li.appendChild(document.createTextNode(' (' + links[i].rel + ')'));
 
           ul.appendChild(li);
         }
@@ -681,13 +679,13 @@
           body.classList.add('card-body');
           section.appendChild(body);
 
-          if (things[i].description) for (var j = 0 ; j < things[i].description.length ; j++) {
+          if (things[i].hasOwnProperty("description")) for (var j = 0 ; j < things[i].description.length ; j++) {
             var p = document.createElement('p');
             p.innerHTML = convertURLstoLinks(things[i].description[j]);
             body.appendChild(p);
           }
 
-          if (things[i].links) {
+          if (things[i].hasOwnProperty("links")) {
             var ldl = document.createElement('dl');
             processLinks(things[i].links, ldl);
             body.appendChild(ldl);
@@ -710,7 +708,7 @@
 
         if (toplevel) document.title = 'Domain ' + (object.unicodeName ? object.unicodeName : object.ldhName).toUpperCase() + ' - RDAP Lookup';
 
-        if (object.unicodeName) {
+        if (object.hasOwnProperty("unicodeName")) {
           addProperty(dl, 'Name:', object.unicodeName);
           addProperty(dl, 'ASCII Name:', object.ldhName);
 
@@ -719,17 +717,19 @@
 
         }
 
-        if (object.handle) addProperty(dl, 'Handle:', object.handle);
+        if (object.hasOwnProperty("handle")) addProperty(dl, 'Handle:', object.handle);
 
         // process events, status and entities here, then set them to null so processCommonObjectProperties()
         // doesn't process them again. this makes the output look more like a traditional whois record:
-        if (object.events) processEvents(object.events, dl);
+        if (object.hasOwnProperty("events")) processEvents(object.events, dl);
         if (object.status) processStatus(object.status, dl);
-        if (object.entities) processEntities(object.entities, dl);
+        if (object.hasOwnProperty("entities")) processEntities(object.entities, dl);
 
-        object.events = object.status = object.entities = null;
+        delete object.events;
+        delete object.status;
+        delete object.entities;
 
-        if (object.nameservers) {
+        if (object.hasOwnProperty("nameservers")) {
           var div = document.createElement('div');
 
           for (var i = 0 ; i < object.nameservers.length ; i++) div.appendChild(processObject(object.nameservers[i]));
@@ -737,9 +737,84 @@
           addProperty(dl, 'Nameservers:', div);
         }
 
-        addProperty(dl, 'DNSSEC:', object.secureDNS && object.secureDNS.delegationSigned ? 'Secure' : 'Insecure');
+        if (!object.hasOwnProperty("secureDNS")) {
+          addProperty(dl, 'DNSSEC:', "Insecure");
+
+        } else {
+          addProperty(dl, 'DNSSEC:', processDNSSEC(object));
+
+        }
 
         processCommonObjectProperties(object, dl);
+      }
+
+      function processDNSSEC(domain) {
+        var dl = document.createElement('dl');
+
+        if (domain.secureDNS.hasOwnProperty("zoneSigned")) {
+          addProperty(dl, 'Parent zone signed:', domain.secureDNS.zoneSigned ? 'Yes' : 'No');
+        }
+
+        if (domain.secureDNS.hasOwnProperty("delegationSigned")) {
+          addProperty(dl, 'Delegation signed:', domain.secureDNS.delegationSigned ? 'Yes' : 'No');
+        }
+
+        if (domain.secureDNS.hasOwnProperty("maxSigLife")) {
+          addProperty(dl, 'Signature Lifetime:', domain.secureDNS.maxSigLife + ' second(s)');
+        }
+
+        if (domain.secureDNS.hasOwnProperty("dsData")) {
+          var ul = document.createElement('ul');
+
+          for (var i = 0 ; i < domain.secureDNS.dsData.length ; i++) {
+            var ds = domain.secureDNS.dsData[i];
+
+            ul.appendChild(document.createElement('li'))
+              .appendChild(document.createElement('code'))
+              .appendChild(document.createTextNode([domain.ldhName+".", "IN", "DS", ds.keyTag, ds.algorithm, ds.digestType, ds.digest].join(" ")));
+          }
+
+          addProperty(dl, 'DS Record(s):', ul);
+        }
+
+        if (domain.secureDNS.hasOwnProperty("keyData")) {
+          var div = document.createElement('div');
+
+          for (var i = 0 ; i < domain.secureDNS.keyData.length ; i++) {
+            var dnsKey = domain.secureDNS.keyData[i];
+
+            var table = div.appendChild(document.createElement('table'));
+            var tr = table.appendChild(document.createElement('tr'));
+
+            var cells = [
+              domain.ldhName + ".",
+              "\u00A0",
+              "IN",
+              "\u00A0",
+              "DNSKEY",
+              "\u00A0",
+              dnsKey.flags,
+              "\u00A0",
+              dnsKey.protocol,
+              "\u00A0",
+              dnsKey.algorithm,
+              "\u00A0",
+              dnsKey.publicKey.match(/./g).join("\u200B")
+            ];
+
+            for (var i = 0 ; i < cells.length ; i++) {
+              var td = tr.appendChild(document.createElement('td'));
+              td.setAttribute('style', 'vertical-align:top;word-wrap:break-word');
+              var code = td.appendChild(document.createElement('code'));
+              code.setAttribute('white-space:nowrap');
+              code.appendChild(document.createTextNode(cells[i]));
+            }
+          }
+
+          addProperty(dl, 'DNSKey Record(s):', div);
+        }
+
+        return dl;
       }
 
       // process a nameserver
@@ -748,17 +823,17 @@
         if (toplevel) document.title = 'Nameserver ' + object.ldhName + ' - RDAP Lookup';
 
         addProperty(dl, 'Host Name:', object.ldhName);
-        if (object.unicodeName) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
-        if (object.handle) addProperty(dl, 'Handle:', object.handle);
+        if (object.hasOwnProperty("unicodeName")) addProperty(dl, 'Internationalised Domain Name:', object.unicodeName);
+        if (object.hasOwnProperty("handle")) addProperty(dl, 'Handle:', object.handle);
 
-        if (object.ipAddresses) {
-          if (object.ipAddresses.v4) {
+        if (object.hasOwnProperty("ipAddresses")) {
+          if (object.ipAddresses.hasOwnProperty("v4")) {
             for (var i = 0 ; i < object.ipAddresses.v4.length ; i++) {
               addProperty(dl, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v4[i], object.ipAddresses.v4[i]));
             }
           }
 
-          if (object.ipAddresses.v6) {
+          if (object.ipAddresses.hasOwnProperty("v6")) {
             for (var i = 0 ; i < object.ipAddresses.v6.length ; i++) {
               addProperty(dl, 'IP Address:', createRDAPLink('https://rdap.org/ip/' + object.ipAddresses.v6[i], object.ipAddresses.v6[i]));
             }
@@ -773,21 +848,21 @@
 
         if (toplevel) document.title = 'Entity ' + object.handle + ' - RDAP Lookup';
 
-        if (object.handle) addProperty(dl, 'Handle:', object.handle);
+        if (object.hasOwnProperty("handle")) addProperty(dl, 'Handle:', object.handle);
 
-        if (object.publicIds) {
+        if (object.hasOwnProperty("publicIds")) {
           for (var i = 0 ; i < object.publicIds.length ; i++) addProperty(dl, object.publicIds[i].type + ':', object.publicIds[i].identifier);
         }
 
-        if (object.roles) addProperty(dl, 'Roles:', createList(object.roles));
+        if (object.hasOwnProperty("roles")) addProperty(dl, 'Roles:', createList(object.roles));
 
-        if (object.jscard) {
+        if (object.hasOwnProperty("jscard")) {
           addProperty(dl, 'Contact Information:', processJSCard(object.jscard));
 
-        } else if (object.jscard_0) {
+        } else if (object.hasOwnProperty("jscard_0")) {
           addProperty(dl, 'Contact Information:', processJSCard(object.jscard_0));
 
-        } else if (object.vcardArray && object.vcardArray[1]) {
+        } else if (object.hasOwnProperty("vcardArray") && object.vcardArray[1]) {
           addProperty(dl, 'Contact Information:', processVCardArray(object.vcardArray[1]));
         }
 
@@ -886,21 +961,21 @@
       function processJSCard(jscard) {
         var vdl = document.createElement('dl');
 
-        if (jscard.fullName) addProperty(vdl, 'Name:', jscard.fullName);
+        if (jscard.hasOwnProperty("fullName")) addProperty(vdl, 'Name:', jscard.fullName);
 
-        if (jscard.organizations) {
+        if (jscard.hasOwnProperty("organizations")) {
           for (const k in jscard.organizations) {
             addProperty(vdl, 'Organization:', jscard.organizations[k].name);
           }
         }
 
-        if (jscard.addresses) {
+        if (jscard.hasOwnProperty("addresses")) {
           for (const k in jscard.addresses) {
             addProperty(vdl, 'Address:', processJSCardAddress(jscard.addresses[k]));
           }
         }
 
-        if (jscard.emails) {
+        if (jscard.hasOwnProperty("emails")) {
           for (const k in jscard.emails) {
             var link = document.createElement('a');
             link.href = 'mailto:' + jscard.emails[k].email;
@@ -910,7 +985,7 @@
           }
         }
 
-        if (jscard.phones) {
+        if (jscard.hasOwnProperty("phones")) {
           for (const k in jscard.phones) {
             var link = document.createElement('a');
             link.href = jscard.phones[k].phone;
@@ -959,8 +1034,8 @@
 
         if (toplevel) document.title = 'AS Number ' + object.handle + ' - RDAP Lookup';
 
-        if (object.name) addProperty(dl, 'Network Name:', object.name);
-        if (object.type) addProperty(dl, 'Network Type:', object.type);
+        if (object.hasOwnProperty("name")) addProperty(dl, 'Network Name:', object.name);
+        if (object.hasOwnProperty("type")) addProperty(dl, 'Network Type:', object.type);
 
         processCommonObjectProperties(object, dl);
       }
@@ -970,13 +1045,13 @@
 
         if (toplevel) document.title = 'IP Network ' + object.handle + ' - RDAP Lookup';
 
-        if (object.ipVersion) addProperty(dl, 'IP Version:', object.ipVersion);
-        if (object.startAddress && object.endAddress) addProperty(dl, 'Address Range:', object.startAddress + ' - ' + object.endAddress);
-        if (object.name) addProperty(dl, 'Network Name:', object.name);
-        if (object.type) addProperty(dl, 'Network Type:', object.type);
-        if (object.country) addProperty(dl, 'Country:', object.country);
-        if (object.parentHandle) addProperty(dl, 'Parent Network:', object.parentHandle);
-        if (object.cidr0_cidrs) addProperty(dl, 'CIDR Prefix(es):', processCIDRs(object.cidr0_cidrs));
+        if (object.hasOwnProperty("ipVersion")) addProperty(dl, 'IP Version:', object.ipVersion);
+        if (object.hasOwnProperty("startAddress") && object.hasOwnProperty("endAddress")) addProperty(dl, 'Address Range:', object.startAddress + ' - ' + object.endAddress);
+        if (object.hasOwnProperty("name")) addProperty(dl, 'Network Name:', object.name);
+        if (object.hasOwnProperty("type")) addProperty(dl, 'Network Type:', object.type);
+        if (object.hasOwnProperty("country")) addProperty(dl, 'Country:', object.country);
+        if (object.hasOwnProperty("parentHandle")) addProperty(dl, 'Parent Network:', object.parentHandle);
+        if (object.hasOwnProperty("cidr0_cidrs")) addProperty(dl, 'CIDR Prefix(es):', processCIDRs(object.cidr0_cidrs));
 
         processCommonObjectProperties(object, dl);
       }
@@ -996,7 +1071,7 @@
 
       // given an object, return the "self" URL (if any)
       function getSelfLink(object) {
-        if (object.links) for (var i = 0 ; i < object.links.length ; i++) if ('self' == object.links[i].rel) return object.links[i].href;
+        if (object.hasOwnProperty("links")) for (var i = 0 ; i < object.links.length ; i++) if ('self' == object.links[i].rel) return object.links[i].href;
 
         return null;
       }
