@@ -241,7 +241,15 @@
       }
 
       function domainMatch(tld, domain) {
-        return punycode.toASCII(domain).toUpperCase().endsWith('.' + tld.toUpperCase());
+        if (tld == '' && !domain.includes('.')) {
+          // an empty TLD indicates the root zone, and no dot indicates domain
+          // is a TLD
+          return true;
+
+        } else {
+          return punycode.toASCII(domain).toUpperCase().endsWith('.' + tld.toUpperCase());
+
+        }
       }
 
       function asnMatch(range, asn) {
