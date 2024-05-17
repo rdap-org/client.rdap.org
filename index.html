@@ -33,6 +33,7 @@
       }
     </style>
     <script src="assets/ipaddr.js/ipaddr.min.js?v=2021122209"></script>
+    <script src="assets/punycode.js/punycode.js?v=2024040213"></script>
     <script>
       // see https://www.iana.org/assignments/rdap-json-values
       var rdapStatusInfo = {
@@ -246,7 +247,7 @@
           return true;
 
         } else {
-          return domain.toUpperCase().endsWith('.' + tld.toUpperCase());
+          return punycode.toASCII(domain).toUpperCase().endsWith('.' + tld.toUpperCase());
 
         }
       }
@@ -689,7 +690,7 @@
 
           if (things[i].hasOwnProperty("description")) for (var j = 0 ; j < things[i].description.length ; j++) {
             var p = document.createElement('p');
-            p.innerHTML = convertURLstoLinks(things[i].description[j]);
+            p.innerHTML = convertURLsToLinks(things[i].description[j]);
             body.appendChild(p);
           }
 
@@ -704,7 +705,7 @@
       }
 
       // naively match URLs in plain text and convert to links
-      function convertURLstoLinks(str) {
+      function convertURLsToLinks(str) {
         return str.replace(
           /(https?:\/\/[^\s]+[^\.])/g,
           '<a href="$1" target="_new" rel="noopener">$1</a>'
@@ -727,11 +728,12 @@
 
         if (object.hasOwnProperty("handle")) addProperty(dl, 'Handle:', object.handle);
 
-        // process events, status and entities here, then set them to null so processCommonObjectProperties()
-        // doesn't process them again. this makes the output look more like a traditional whois record:
-        if (object.hasOwnProperty("events")) processEvents(object.events, dl);
-        if (object.status) processStatus(object.status, dl);
-        if (object.hasOwnProperty("entities")) processEntities(object.entities, dl);
+        // process events, status and entities here, then set them to null so
+        // processCommonObjectProperties() doesn't process them again. this
+        // makes the output look more like a traditional whois record:
+        if (object.hasOwnProperty("events"))    processEvents(object.events, dl);
+        if (object.hasOwnProperty("status"))    processStatus(object.status, dl);
+        if (object.hasOwnProperty("entities"))  processEntities(object.entities, dl);
 
         delete object.events;
         delete object.status;
@@ -1270,11 +1272,11 @@
       <p>This page implements a <em>completely private lookup tool</em> for domain names, IP addresses and Autonymous System Numbers (ASNs). Only the relevant registry sees your query: your browser will directly connect to the registry's RDAP server using an encrypted HTTPS connection to protect the confidentiality of your query. If you click the "Follow referral to registrar's RDAP record" checkbox, then the sponsoring registrar may also see your query.</p>
       <ul>
         <li><a href="https://about.rdap.org" target="_new">Click here</a> for more information about what RDAP is and how it differs from traditional Whois.</li>
-        <li>Most generic TLDs now support RDAP, but only a few ccTLDs have deployed RDAP so far. To see which TLDs support RDAP, <a href="https://deployment.rdap.org" target="_new">click here</a>.</li>
-        <li>There is no bootstrap registry for top-level domains or ICANN-accredited registrars; instead these queries are sent to the <a href="https://about.rdap.org/#additional" target="_new">{root,registrars}.rdap.org servers</a>.</li>
+        <li>All generic TLDs now support RDAP, but only a few ccTLDs have deployed RDAP so far. To see which TLDs support RDAP, <a href="https://deployment.rdap.org" target="_new">click here</a>.</li>
+        <li>There is (currently) no bootstrap registry for top-level domains or ICANN-accredited registrars; instead these queries are sent to <a href="https://about.rdap.org/#additional" target="_new">the {root,registrars}.rdap.org servers</a>.</li>
         <li>To submit feedback, <a href="mailto:feedback@rdap.org">click here</a>. Please contact the relevant registry or registrar if you have an issue with the content of an RDAP response.</li>
         <li>This tool is Free Software; for the license, <a href="LICENSE">click here</a>. To fork a copy of the git repository, <a rel="noopener" target="_new" href="https://github.com/gbxyz/rdap-web-client">click here</a>.</li>
-        <li>This page uses <a rel="noopener" target="_new" href="https://github.com/whitequark/ipaddr.js/">ipaddr.js</a> by <a rel="noopener" target="_new" href="https://whitequark.org/">whitequark</a>.</li>
+        <li>This page uses <a rel="noopener" target="_new" href="https://github.com/whitequark/ipaddr.js/">ipaddr.js</a> by <a rel="noopener" target="_new" href="https://whitequark.org/">whitequark</a>, and <a rel="noopener" target="_new" href="https://github.com/mathiasbynens/punycode.js">punycode.js</a> by <a rel="noopener" target="_new" href="https://mathiasbynens.be/">Mathias Bynens</a>.</li>
       </ul>
 
     </div>
