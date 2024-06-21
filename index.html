@@ -5,6 +5,7 @@
     <title>RDAP Lookup - a private domain name lookup tool</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="module" src="https://about.rdap.org/assets/scaffold.js"></script>
     <link rel="stylesheet" href="./assets/bootstrap.min.css?v=2021112213" />
     <link rel="shortcut icon" href="./assets/shortcut-icon.svg?v=2021112213" />
     <meta name="description" content="A completely private domain name lookup tool using RDAP (the replacement for Whois)" />
@@ -1206,33 +1207,6 @@
     </script>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-      <span class="text-white font-weight-bold" style="font-size:larger">
-        <a class="navbar-brand" href="#">RDAP.ORG</a>
-      </span>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar1" aria-controls="navbar1" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar1">
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="https://about.rdap.org/">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="https://client.rdap.org/">Web Client</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://deployment.rdap.org/">Deployment Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://validator.rdap.org/">Validator</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-
-    <br/>
-
     <div class="container">
 
       <form onsubmit="doQuery();return false" class="form-inline">
