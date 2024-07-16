@@ -1,0 +1,9 @@
+title: RDAP Lookup - a private domain name lookup tool - RDAP.ORG
+email: feedback@rdap.org
+description: A completely private domain name lookup tool using RDAP (the replacement for Whois)
+baseurl: "/"
+url: "https://client.rdap.org"
+keywords: rdap, whois, rdap, domain name, dns, ip address
+
+exclude:
+  - CNAME

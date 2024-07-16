@@ -1,0 +1,21 @@
+dd {
+  margin: 0.5em 0 1em 2em;
+}
+.card {
+  margin-bottom:1em;
+}
+dl {
+  margin:0;
+}
+.rdap-status-code,.rdap-event-time {
+  border-bottom: 1px dashed silver;
+}
+#object {
+  text-transform: lowercase;
+}
+#spinner-msg {
+  height:2em;
+  display:inline-block;
+  margin:-0.25em 0 0 0;
+  padding:0.25em 0 0 0;
+}
