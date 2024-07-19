@@ -1,6 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 {% capture now %}{{ "now" | date: "%Y%m%d%H%M%S" }}{% endcapture %}
 {% capture year %}{{ "now" | date: "%Y" }}{% endcapture %}
+
+{% assign base = "https://about.rdap.org" %}
+
+{% if site.url == base %}
+  {% capture assets %}/assets{% endcapture %}
+{% else %}
+  {% capture assets %}{{ base }}/assets{% endcapture %}
+{% endif %}
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -18,7 +27,7 @@
     <meta name="keywords" content="{{ site.keywords | escape }}">
   {% endif %}
 
-  <script src="https://about.rdap.org/assets/bootstrap.bundle.js"></script>
+  <script src="{{ assets }}/bootstrap.bundle.js"></script>
 
   {% if page.scripts %}
     {% for script in page.scripts %}
@@ -32,9 +41,9 @@
     {% endfor %}
   {% endif %}
 
-  <link rel="shortcut icon" href="https://about.rdap.org/assets/icon.png">
+  <link rel="shortcut icon" href="{{ assets | escape }}/icon.png">
 
-  <link rel="stylesheet" href="https://about.rdap.org/assets/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ assets | escape }}/bootstrap.min.css">
 
   {% if page.stylesheets %}
     {% for stylesheet in page.stylesheets %}
@@ -43,7 +52,7 @@
   {% endif %}
 
   {% if page.alternate %}
-      <link rel="alternate" type="{{page.alternate.type | escape}}" href="{{ page.alternate.href | escape }}">
+      <link rel="alternate" type="{{ page.alternate.type | escape }}" href="{{ page.alternate.href | escape }}">
   {% endif %}
 
   <style>
@@ -59,7 +68,16 @@
 </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-      <img class="navbar-brand" style="height: 2em;" src="https://about.rdap.org/assets/icon.png" alt="[RDAP.ORG]"><a class="navbar-brand" href="https://about.rdap.org"><span class="text-white font-weight-bold" style="font-size: larger;">RDAP.ORG</span></a>
+      <img class="navbar-brand" style="height: 2em;" src="{{ assets | escape }}/icon.png" alt="[RDAP.ORG]">
+
+      <a class="navbar-brand" href="https://about.rdap.org">
+        <span class="text-white font-weight-bold" style="font-size: larger;">RDAP.ORG</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar1" aria-controls="navbar1" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
       <div class="collapse navbar-collapse" id="navbar1">
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
           <li class="nav-item">
