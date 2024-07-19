@@ -261,7 +261,7 @@ function showSpinner(msg) {
   spinner.classList.add('spinner-border');
   spinner.role = 'status';
   var span = spinner.appendChild(document.createElement('span'));
-  span.classList.add('sr-only');
+  span.classList.add('visually-hidden');
   span.appendChild(document.createTextNode(msg));
 
   div.appendChild(spinner);
