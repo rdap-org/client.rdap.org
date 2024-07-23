@@ -66,55 +66,59 @@
     }
   </style>
 </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-      <img class="navbar-brand" style="height: 2em;" src="{{ assets | escape }}/icon.png" alt="[RDAP.ORG]">
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <img class="navbar-brand" style="height: 2em;" src="{{ assets | escape }}/icon.png" alt="[RDAP.ORG]">
 
-      <a class="navbar-brand" href="https://about.rdap.org">
-        <span class="text-white font-weight-bold" style="font-size: larger;">RDAP.ORG</span>
-      </a>
+    <a class="navbar-brand" href="https://about.rdap.org">
+      <span class="text-white font-weight-bold" style="font-size: larger;">RDAP.ORG</span>
+    </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar1" aria-controls="navbar1" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar1" aria-controls="navbar1" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbar1">
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="https://about.rdap.org">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://client.rdap.org">Web Client</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://deployment.rdap.org">Deployment Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://validator.rdap.org">Validator</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://github.com/rdap-org">GitHub</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="mailto:feedback@rdap.org">Feedback</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    <br>
-    <main class="container">
-      {{ content }}
-    </main>
-    <br>
-    <footer class="container text-sm-center">
-      Copyright {{ year }} {{ site.title }}.
-    </footer>
-    <script>
-      Array.from(document.getElementsByClassName('nav-link')).forEach(function(a) {
-        if (document.location.href.startsWith(a.getAttribute('href'))) {
-          a.classList.add('active');
-        }
-      });
-    </script>
-  </body>
+    <div class="collapse navbar-collapse" id="navbar1">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="https://about.rdap.org">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://client.rdap.org">Web Client</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://deployment.rdap.org">Deployment Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://validator.rdap.org">Validator</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/rdap-org">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="mailto:feedback@rdap.org">Feedback</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <br>
+  <main class="container">
+    {{ content }}
+  </main>
+  <br>
+  <footer class="container text-sm-center">
+    Copyright {{ year }} {{ site.title }}.
+  </footer>
+  <script>
+    if (window.matchMedia && true === window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.body.setAttribute("data-bs-theme", "dark");
+    }
+
+    Array.from(document.getElementsByClassName('nav-link')).forEach(function(a) {
+      if (document.location.href.startsWith(a.getAttribute('href'))) {
+        a.classList.add('active');
+      }
+    });
+  </script>
+</body>
 </html>
