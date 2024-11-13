@@ -272,9 +272,13 @@ function showSpinner(msg) {
   div.appendChild(msgDiv);
 }
 
+let lastQueriedURL = null;
+
 // disable the user interface, initiate an XHR
 function sendQuery(url, followReferral=false, followingReferral=true) {
   freezeUI();
+
+  lastQueriedURL = null;
 
   if (0 == url.indexOf('json://')) {
     // run the callback with a mock XHR
@@ -341,6 +345,8 @@ function createErrorNode(error) {
 // callback executed when a response is received
 function handleResponse(xhr, followReferral=false) {
   thawUI();
+
+  lastQueriedURL = xhr.responseURL;
 
   if (404 == xhr.status) {
     handleError('This object does not exist.');
