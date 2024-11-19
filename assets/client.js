@@ -282,10 +282,14 @@ function sendQuery(url, followReferral=false, followingReferral=true) {
 
   if (0 == url.indexOf('json://')) {
     // run the callback with a mock XHR
-    handleResponse({
-      "status": 200,
-      "response": JSON.parse(url.substring(7))
-    });
+    handleResponse(
+      {
+        "status": 200,
+        "response": JSON.parse(url.substring(7))
+      },
+      followReferral,
+      followingReferral
+    );
 
   } else {
     let xhr = createXHR(url);
@@ -295,7 +299,7 @@ function sendQuery(url, followReferral=false, followingReferral=true) {
       handleError('Timeout performing query, please try again later.');
     };
 
-    xhr.onload = function() { handleResponse(xhr, followReferral); };
+    xhr.onload = function() { handleResponse(xhr, followReferral, followingReferral); };
 
     xhr.onreadystatechange = function() {
       if (4 == xhr.readyState && xhr.status < 1) {
@@ -343,7 +347,7 @@ function createErrorNode(error) {
 }
 
 // callback executed when a response is received
-function handleResponse(xhr, followReferral=false) {
+function handleResponse(xhr, followReferral=false, followingReferral=false) {
   thawUI();
 
   lastQueriedURL = xhr.responseURL;
@@ -370,7 +374,7 @@ function handleResponse(xhr, followReferral=false) {
     try {
       var div = document.getElementById('output-div');
       div.innerHTML = '';
-      div.appendChild(processObject(xhr.response, true));
+      div.appendChild(processObject(xhr.response, true, followReferral, followingReferral));
 
       var url = document.createElement('a');
       url.href = window.location.href;
@@ -389,7 +393,7 @@ function handleResponse(xhr, followReferral=false) {
 
 // process an RDAP object. Argument is a JSON object, return
 // value is an element that can be inserted into the page
-function processObject(object, toplevel, followReferral=true) {
+function processObject(object, toplevel, followReferral=true, followingReferral=false) {
   if (!object) {
     console.log(object);
     return false;
