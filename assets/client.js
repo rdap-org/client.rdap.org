@@ -465,6 +465,28 @@ function processObject(object, toplevel, followReferral=true, followingReferral=
   title.appendChild(document.createTextNode(titleText));
   card.appendChild(title);
 
+  if (toplevel) {
+    const vbutton = document.createElement('button');
+    vbutton.classList.add('btn', 'btn-link', 'btn-sm');
+    vbutton.appendChild(document.createTextNode('Validate this record'));
+
+    vbutton.onclick = function() {
+      const type    = document.getElementById('type');
+      const typeval = type.options[type.selectedIndex].value;
+
+      const url = 'https://validator.rdap.org/?' +
+                  'url=' + escape(lastQueriedURL) +
+                  '&response-type=' + escape('ip' === typeval ? 'ip network' : typeval);
+
+      window.open(url);
+    };
+
+    // 160 = U+00A0 NO-BREAK SPACE
+    title.appendChild(document.createTextNode(String.fromCharCode(160)));
+
+    title.appendChild(vbutton);
+  }
+
   var body = document.createElement('div');
   body.classList.add('card-body');
 
