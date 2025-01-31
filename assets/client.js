@@ -881,7 +881,7 @@ function processVCardArray(vcard) {
   for (var i = 0 ; i < vcard.length ; i++) {
     var node = vcard[i];
 
-    var type = node[0];
+    var type = node[0].toLowerCase();
     var value = node[3];
 
     if ('version' == type) {
@@ -913,12 +913,17 @@ function processVCardArray(vcard) {
     } else if ('adr' == type) {
       type = 'Address';
 
-      if (node[1].label) {
+      if (node[1].hasOwnProperty("label")) {
         var div = document.createElement('div');
         strings = node[1].label.split("\n");
         for (var j = 0 ; j < strings.length ; j++) {
           div.appendChild(document.createTextNode(strings[j]));
           if (j < strings.length - 1) div.appendChild(document.createElement('br'));
+        }
+
+        if (node[1].hasOwnProperty("cc")) {
+            div.appendChild(document.createElement('br'));
+            div.appendChild(document.createTextNode(node[1].cc));
         }
 
         value = div;
@@ -931,6 +936,10 @@ function processVCardArray(vcard) {
             div.appendChild(document.createTextNode(value[j]));
             div.appendChild(document.createElement('br'));
           }
+        }
+
+        if (node[1].hasOwnProperty("cc")) {
+            div.appendChild(document.createTextNode(node[1].cc));
         }
 
         value = div;
