@@ -228,9 +228,16 @@ function entityMatch(tag, handle) {
 }
 
 function ipMatch(prefix, ip) {
-  var ip = ipaddr.parse(ip);
-  var prefix = ipaddr.parseCIDR(prefix);
-  return (ip.kind() == prefix[0].kind() && ip.match(prefix));
+  prefix = ipaddr.parseCIDR(prefix);
+  if (ip.includes("/")) {
+    ip = ipaddr.parseCIDR(ip);
+    return (ip[0].kind() == prefix[0].kind() && ip[0].match(prefix));
+
+  } else {
+    ip = ipaddr.parse(ip);
+    return (ip.kind() == prefix[0].kind() && ip.match(prefix));
+
+  }
 }
 
 // return the first HTTPS url, or the first URL
