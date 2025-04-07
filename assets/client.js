@@ -228,9 +228,16 @@ function entityMatch(tag, handle) {
 }
 
 function ipMatch(prefix, ip) {
-  var ip = ipaddr.parse(ip);
-  var prefix = ipaddr.parseCIDR(prefix);
-  return (ip.kind() == prefix[0].kind() && ip.match(prefix));
+  prefix = ipaddr.parseCIDR(prefix);
+  if (ip.includes("/")) {
+    ip = ipaddr.parseCIDR(ip);
+    return (ip[0].kind() == prefix[0].kind() && ip[0].match(prefix));
+
+  } else {
+    ip = ipaddr.parse(ip);
+    return (ip.kind() == prefix[0].kind() && ip.match(prefix));
+
+  }
 }
 
 // return the first HTTPS url, or the first URL
@@ -272,16 +279,24 @@ function showSpinner(msg) {
   div.appendChild(msgDiv);
 }
 
+let lastQueriedURL = null;
+
 // disable the user interface, initiate an XHR
 function sendQuery(url, followReferral=false, followingReferral=true) {
   freezeUI();
 
+  lastQueriedURL = null;
+
   if (0 == url.indexOf('json://')) {
     // run the callback with a mock XHR
-    handleResponse({
-      "status": 200,
-      "response": JSON.parse(url.substring(7))
-    });
+    handleResponse(
+      {
+        "status": 200,
+        "response": JSON.parse(url.substring(7))
+      },
+      followReferral,
+      followingReferral
+    );
 
   } else {
     let xhr = createXHR(url);
@@ -291,7 +306,7 @@ function sendQuery(url, followReferral=false, followingReferral=true) {
       handleError('Timeout performing query, please try again later.');
     };
 
-    xhr.onload = function() { handleResponse(xhr, followReferral); };
+    xhr.onload = function() { handleResponse(xhr, followReferral, followingReferral); };
 
     xhr.onreadystatechange = function() {
       if (4 == xhr.readyState && xhr.status < 1) {
@@ -339,8 +354,10 @@ function createErrorNode(error) {
 }
 
 // callback executed when a response is received
-function handleResponse(xhr, followReferral=false) {
+function handleResponse(xhr, followReferral=false, followingReferral=false) {
   thawUI();
+
+  lastQueriedURL = xhr.responseURL;
 
   if (404 == xhr.status) {
     handleError('This object does not exist.');
@@ -364,7 +381,7 @@ function handleResponse(xhr, followReferral=false) {
     try {
       var div = document.getElementById('output-div');
       div.innerHTML = '';
-      div.appendChild(processObject(xhr.response, true));
+      div.appendChild(processObject(xhr.response, true, followReferral, followingReferral));
 
       var url = document.createElement('a');
       url.href = window.location.href;
@@ -383,7 +400,7 @@ function handleResponse(xhr, followReferral=false) {
 
 // process an RDAP object. Argument is a JSON object, return
 // value is an element that can be inserted into the page
-function processObject(object, toplevel, followReferral=true) {
+function processObject(object, toplevel, followReferral=true, followingReferral=false) {
   if (!object) {
     console.log(object);
     return false;
@@ -454,6 +471,28 @@ function processObject(object, toplevel, followReferral=true) {
   title.classList.add('card-header', 'font-weight-bold');
   title.appendChild(document.createTextNode(titleText));
   card.appendChild(title);
+
+  if (toplevel) {
+    const vbutton = document.createElement('button');
+    vbutton.classList.add('btn', 'btn-link', 'btn-sm');
+    vbutton.appendChild(document.createTextNode('Validate this record'));
+
+    vbutton.onclick = function() {
+      const type    = document.getElementById('type');
+      const typeval = type.options[type.selectedIndex].value;
+
+      const url = 'https://validator.rdap.org/?' +
+                  'url=' + escape(lastQueriedURL) +
+                  '&response-type=' + escape('ip' === typeval ? 'ip network' : typeval);
+
+      window.open(url);
+    };
+
+    // 160 = U+00A0 NO-BREAK SPACE
+    title.appendChild(document.createTextNode(String.fromCharCode(160)));
+
+    title.appendChild(vbutton);
+  }
 
   var body = document.createElement('div');
   body.classList.add('card-body');
@@ -849,7 +888,7 @@ function processVCardArray(vcard) {
   for (var i = 0 ; i < vcard.length ; i++) {
     var node = vcard[i];
 
-    var type = node[0];
+    var type = node[0].toLowerCase();
     var value = node[3];
 
     if ('version' == type) {
@@ -881,12 +920,17 @@ function processVCardArray(vcard) {
     } else if ('adr' == type) {
       type = 'Address';
 
-      if (node[1].label) {
+      if (node[1].hasOwnProperty("label")) {
         var div = document.createElement('div');
         strings = node[1].label.split("\n");
         for (var j = 0 ; j < strings.length ; j++) {
           div.appendChild(document.createTextNode(strings[j]));
           if (j < strings.length - 1) div.appendChild(document.createElement('br'));
+        }
+
+        if (node[1].hasOwnProperty("cc")) {
+            div.appendChild(document.createElement('br'));
+            div.appendChild(document.createTextNode(node[1].cc));
         }
 
         value = div;
@@ -899,6 +943,10 @@ function processVCardArray(vcard) {
             div.appendChild(document.createTextNode(value[j]));
             div.appendChild(document.createElement('br'));
           }
+        }
+
+        if (node[1].hasOwnProperty("cc")) {
+            div.appendChild(document.createTextNode(node[1].cc));
         }
 
         value = div;
