@@ -1,0 +1,77 @@
+Name:
+GRANDI.COM
+Handle:
+2779374_DOMAIN_COM-VRSN
+Events:
+registration:
+12/15/1998, 7:00:00 PM
+expiration:
+12/15/2025, 7:00:00 PM
+last changed:
+8/14/2024, 12:00:35 PM
+last update of RDAP database:
+5/26/2025, 8:50:38 PM
+Status:
+client transfer prohibited
+Entities:
+Entity 472
+Handle:
+472
+IANA Registrar ID:
+472
+Roles:
+registrar
+Contact Information:
+Name:
+Dynadot Inc
+Contact format:
+jCard
+Entities:
+Entity
+Roles:
+abuse
+Contact Information:
+Phone:
+tel:+16502620100
+Email:
+abuse@dynadot.com
+Contact format:
+jCard
+Raw Data:
+{
+  "objectClassName": "entity",
+  "roles": [
+    "abuse"
+  ],
+  "vcardArray": [
+    "vcard",
+    [
+      [
+        "version",
+        {},
+        "text",
+        "4.0"
+      ],
+      [
+        "fn",
+        {},
+        "text",
+        ""
+      ],
+      [
+        "tel",
+        {
+          "type": "voice"
+        },
+        "uri",
+        "tel:+16502620100"
+      ],
+      [
+        "email",
+        {},
+        "text",
+        "abuse@dynadot.com"
+      ]
+    ]
+  ]
+}
