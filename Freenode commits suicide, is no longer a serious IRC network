@@ -1,0 +1,453 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: https://www.devever.net/~hl/freenode_suicide
+Subject: Freenode commits suicide, is no longer a serious IRC network
+Date: Mon, 26 May 2025 21:39:28 -1000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="application/xhtml+xml";
+	boundary="----MultipartBoundary--bhoCLGjtudkk9BpelXFOgIRiyoxXcbunAmjc29edhj----"
+
+
+------MultipartBoundary--bhoCLGjtudkk9BpelXFOgIRiyoxXcbunAmjc29edhj----
+Content-Type: application/xhtml+xml
+Content-ID: <frame-8F069F7FFC6B868D1499B3EC12EA3340@mhtml.blink>
+Content-Transfer-Encoding: binary
+Content-Location: https://www.devever.net/~hl/freenode_suicide
+
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xmlns:de="https://www.devever.net/~hl/site" lang="en" xml:lang="en" class="content article published usermfw usermfw-site" id="t1">
+  <head><meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+    
+    <link rel="top" href="https://www.devever.net/~hl/" />
+    <link rel="stylesheet" href="https://www.devever.net/~hl/style3.css" />
+    <link rel="canonical" href="https://www.devever.net/~hl/freenode_suicide" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <meta name="author" content="Hugo Landau" />
+    <link rel="apple-touch-icon" href="https://www.devever.net/~hl/img/favicon/apple-touch-icon.png" sizes="180x180" />
+    <link rel="icon" href="https://www.devever.net/~hl/img/favicon/favicon-32x32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="https://www.devever.net/~hl/img/favicon/favicon-16x16.png" sizes="16x16" type="image/png" />
+    <link rel="manifest" href="https://www.devever.net/~hl/img/favicon/site.webmanifest" />
+    <link rel="mask-icon" href="https://www.devever.net/~hl/img/favicon/safari-pinned-tab.svg" color="#000000" />
+    <link rel="shortcut icon" href="https://www.devever.net/~hl/img/favicon/favicon.ico" />
+    <meta name="msapplication-TileColor" content="#008080" />
+    <meta name="msapplication-config" content="/~hl/img/favicon/browserconfig.xml" />
+    <meta name="theme-color" content="#008080" />
+    <title>Freenode commits suicide, is no longer a serious IRC network</title>
+    
+  </head>
+  <body>
+    <div id="narrow"></div>
+    <div id="all">
+      <header>
+        <nav class="homelink-top">
+          <ul>
+            <li>
+              <a href="https://www.devever.net/~hl/">Home</a>
+            </li>
+            <li class="narrow-mode">
+              <a href="https://www.devever.net/~hl/freenode_suicide#narrow">Narrow mode</a>
+            </li>
+            <li class="wide-mode">
+              <a href="https://www.devever.net/~hl/freenode_suicide#">Wide mode</a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <div id="nh">
+        <div class="seriesbox seriesbox-1">
+          <p>Other articles in this series:</p>
+          <ul>
+            <li>
+              <a href="https://www.devever.net/~hl/freenode_abuse">Freenode IRC operators now engaging in routine abuses of power</a>
+            </li>
+            <li>
+              <a href="https://www.devever.net/~hl/freenode_abuse2">Freenode IRC operators perform mass seizure of channels for mentioning Liberachat</a>
+            </li>
+            <li>
+              <a href="https://www.devever.net/~hl/freenode_kline">I have now been banned from Freenode</a>
+            </li>
+            <li class="seriesbox-cur">
+              <span>Freenode commits suicide, is no longer a serious IRC network</span>
+            </li>
+          </ul>
+        </div>
+        <div id="xbody">
+          <main>
+            <article><h1>Freenode commits suicide, is no longer a serious IRC network</h1><p>Since this happened after I was <a href="https://www.devever.net/~hl/freenode_kline">banned from Freenode</a>, I
+didn't get to observe this first hand, but this is the situation as I now
+understand it.</p>
+<p>Global notices were sent to those connected on Freenode announcing that “the new freenode is launched” (reported by <a href="https://nitter.dark.fail/theprincessxena/status/1404595980113166336#m">Xe</a>, whom I trust):</p>
+<pre class="wrap">[root] [Global Notice 1/3] We are moving past legacy freenode to a new fork. The new freenode is launched. You will slowly be disconnected and when you reconnect, you will be on the new freenode. We patiently await to welcome you in freedom's holdout - the freenode.
+[root] [Global Notice 2/3] If you're looking to connect now, you can already /server chat.freenode.net 6697 (ssl) or 6667 (plaintext). It's a new genesis for a new era. Thank you for using freenode, and Hello World, from the future. freenode is IRC. freenode is FOSS.
+[root] [Global Notice 3/3] When you connect, register your nickname and your channel and get started. It's a new world. We're so happy to welcome you and the millions of others.</pre>
+
+<p>As I understand it, the following has happened:</p>
+<ul>
+<li><p>Freenode's new custodians decided they wanted to move from <code>ircd-seven</code>
+(the IRC server software Freenode has used for years and years), to
+InspIRCd; and from the Atheme services package to the Anope services
+package.</p>
+</li>
+<li><p>Since different IRC daemons generally cannot be linked together for
+the purposes of server-to-server links, this necessarily entails creating
+a brand new IRC network which is not linked with the old one. In other words,
+there are now <em>two</em> Freenodes: an “old” Freenode running <code>ircd-seven</code> and a “new”
+Freenode running InspIRCd. Channel <code>#x</code> on one is completely unrelated to channel <code>#x</code>
+on the other, so Freenode has essentially netsplit <em>itself</em>. Deliberately.</p>
+</li>
+<li><p>The old services database (registered nicknames, channels, etc.) is apparently gone.
+All of your registered nicknames and channels are gone. Anyone who wishes to continue
+to use Freenode (though at this point I honestly can't imagine why anyone would want to)
+must re-register their nickname.</p>
+<p>In short, it seems there was no effort whatsoever to migrate the services
+database when migrating from Atheme to Anope. Not only that, this
+transition happened suddenly with, as far as I am aware, zero warning.
+Freenode has simply dropped all nickname and channel registrations without
+warning.</p>
+<p>Even my channel <code>##hntop</code> which was previously seized personally by Andrew
+Lee is no longer registered. It's literally open season for anyone who
+wants to impersonate someone else, steal their nickname, or take over
+someone else's channel.</p>
+</li>
+<li><p>All of the servers on the <code>chat.freenode.net</code> round robin appear to be the “new” Freenode.
+In other words, the idea is that people disconnect and reconnect and are then on the
+“new” Freenode (with no nickname or channel registrations). However, as of writing,
+the old servers are still up.</p>
+</li>
+<li><p>Here is a listing of the servers I know about. User counts are as of approximately 2021-06-15 03:00 BST, give or take 15 minutes:</p>
+  <table>
+  <tbody><tr><th>Network</th><th>Server</th><th>IPv4</th><th>In round robin?</th><th>Reported local users</th><th>Reported global users</th><th>NickServ?</th></tr>
+  <tr><td>New</td><td>lux.freenode.net</td><td>54.37.136.225</td><td>Yes</td><td>241</td><td>1478</td></tr>
+  <tr><td>New</td><td>passion.freenode.net</td><td>178.239.166.153</td><td>Yes</td><td>516</td><td>1483</td></tr>
+  <tr><td>New</td><td>kodama.freenode.net</td><td>64.44.25.2</td><td>Yes</td><td>409</td><td>1495</td></tr>
+  <tr><td>New</td><td>tildes.freenode.net</td><td>45.58.138.170</td><td>Yes</td><td>226</td><td>1491</td></tr>
+  <tr><td>Old</td><td>rinnegan.freenode.net</td><td></td><td>No</td><td>10350</td><td>26936</td><td>Y</td></tr>
+  <tr><td>Old</td><td>ace.freenode.net</td><td></td><td>No</td><td>2475</td><td>26930</td><td>Y</td></tr>
+  <tr><td>Old</td><td>happytree.freenode.net</td><td></td><td>No</td><td>5338</td><td>26922</td><td>Y</td></tr>
+  <tr><td>Old</td><td>evilcorp.freenode.net</td><td></td><td>No</td><td>7</td><td>7</td><td>N</td></tr>
+  <tr><td>Old</td><td>hostsailor.freenode.net</td><td></td><td>No</td><td>6404</td><td>26916</td><td>Y</td></tr>
+  <tr><td>Old</td><td>niveus.freenode.net</td><td></td><td>No</td><td>8583</td><td>8583</td><td>N</td></tr>
+  <tr><td>Old</td><td>datapacket.freenode.net</td><td></td><td>No</td><td>6</td><td>26907</td><td>Y</td></tr>
+  <tr><td>Old</td><td>adams.freenode.net</td><td></td><td>No</td><td></td><td></td><td>N</td></tr>
+  <tr><td>Old</td><td>tower.freenode.net</td><td></td><td>No</td><td></td><td></td><td>Y</td></tr>
+  </tbody></table>
+
+<p>Since the user counts are obviously taken at slightly different times, don't expect the global user counts to correspond.</p>
+</li>
+<li><p>Not only are the old servers still up, it's also interesting to note that
+(atheme) services are still up on the old network. Freenode is currently
+running two entirely separate IRC networks with two separate services
+daemons with two separate services databases.</p>
+</li>
+<li><p>NickServ is not reachable from all old servers. This suggests that the old server network has also internally netsplit,
+meaning that the situation is even worse and those users and channels remaining on the old network are also fractured.
+Meanwhile the “new” network has barely any users, as of 2021-06-15 03:17 BST:</p>
+<pre><code>Current local users: 112  Max: 115
+Current global users: 1588  Max: 1592</code></pre></li>
+</ul>
+<p>At this point, I can't even consider Freenode a serious network anymore.</p>
+</article>
+          </main>
+        </div>
+        <div class="seriesbox seriesbox-2">
+          <p>Other articles in this series:</p>
+          <ul>
+            <li>
+              <a href="https://www.devever.net/~hl/freenode_abuse">Freenode IRC operators now engaging in routine abuses of power</a>
+            </li>
+            <li>
+              <a href="https://www.devever.net/~hl/freenode_abuse2">Freenode IRC operators perform mass seizure of channels for mentioning Liberachat</a>
+            </li>
+            <li>
+              <a href="https://www.devever.net/~hl/freenode_kline">I have now been banned from Freenode</a>
+            </li>
+            <li class="seriesbox-cur">
+              <span>Freenode commits suicide, is no longer a serious IRC network</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <footer id="footer"><div class="leftlinks"><ul><li><a href="https://www.devever.net/~hl/">Home</a></li><li><a href="https://www.devever.net/~hl/contact">Feedback</a></li></ul></div>Page last modified on 20210615 by <a href="https://www.devever.net/~hl/contact">Hugo Landau</a></footer>
+    </div>
+  </body>
+</html>
+------MultipartBoundary--bhoCLGjtudkk9BpelXFOgIRiyoxXcbunAmjc29edhj----
+Content-Type: text/css
+Content-Transfer-Encoding: binary
+Content-Location: https://www.devever.net/~hl/style3.css
+
+@charset "utf-8";
+
+#t1, #t1 * { --l-lgutter: 1rem; --c-text: #000; --c-cat-label: #e0e0e0; --c-date: #666; --c-index-list-divider: #dcdcdc; --c-lotd-border: #aaa; --c-lotd-bg: #eaeaea; --c-lotd-byline-link: #004040; --c-block: #008080; --c-seriesbox: #e0e0e0; --c-index-link: #006161; --c-index-visited: #004040; --c-lotd-link: #007a7a; --c-lotd-visited: #005252; --c-lotd-byline-hover: #008080; --c-project-name-bg: rgba(0,170,170,0.4); --c-unpublished-notice-text: #805301; --c-unpublished-notice-bg: #e6b967; --c-unpublished-bg: #ffd280; --c-lpill-bg: #dafafa; --c-cat-label-computing: #e0ffff; --c-cat-label-life: #ffdfa3; --c-cat-label-fiction: #ccccff; --c-cat-label-review: pink; --c-cat-label-photos: #d2ff94; }
+
+html:not(.formal) a:link { color: var(--c-index-link); }
+
+html:not(.formal) a:visited { color: var(--c-index-visited); }
+
+html:not(.formal) { font-family: sans-serif; }
+
+html { font-size: 0.888888em; }
+
+body { margin: 0px; }
+
+html.content #nh { padding: 0 var(--l-lgutter); }
+
+#all { min-height: 100vh; }
+
+@media screen {
+  html:not(.noinsignia) #all { background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDEwMDAgMTAwMCI+DQo8cG9seWdvbiBmaWxsPSIjMDAwMDAwIiBmaWxsLW9wYWNpdHk9IjAuMTMiIHBvaW50cz0iMCw3NjQuMSA4NjMuMiw0MDMuMyAwLDEwMDAgIi8+DQo8cG9seWdvbiBmaWxsPSIjMDAwMDAwIiBmaWxsLW9wYWNpdHk9IjAuMTMiIHBvaW50cz0iODYzLjIsNDAzLjMgNTIyLjYsMjQ5LjYgNTIwLjYsMjE2LjYgIi8+DQo8L3N2Zz4NCg==") left bottom no-repeat; }
+}
+
+html.formal a:link, html.formal a:visited { font-family: serif; }
+
+.formal header { border-top: none !important; }
+
+h1.tsl { font-family: Helvetica, sans-serif; margin-bottom: 0px; }
+
+#xbody > h1 { margin-top: 0px; padding-top: 0.67em; }
+
+.tsl::before { content: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAwIDEwMDAiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDFlMyAxZTMiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiA8cmVjdCB4PSIyLjE2MzgyZS02IiB5PSIxLjg0MjdlLTYiIHdpZHRoPSIxZTMiIGhlaWdodD0iMWUzIiBmaWxsPSIjMDA4MDgwIiBzdHJva2Utd2lkdGg9IjAiLz4KIDxwb2x5Z29uIHBvaW50cz0iMCA3NjQuMSA4NjMuMiA0MDMuMyAwIDFlMyIgZmlsbD0iI2ZmZiIvPgogPHBvbHlnb24gcG9pbnRzPSI4NjMuMiA0MDMuMyA1MjIuNiAyNDkuNiA1MjAuNiAyMTYuNiIgZmlsbD0iI2ZmZiIvPgo8L3N2Zz4K"); display: inline-block; width: 1.5em; vertical-align: middle; padding-right: 0.4em; padding-left: 0.3em; }
+
+#opener { padding-left: 1.5em; padding-right: 1.5em; }
+
+@media screen {
+  .cols { display: grid; grid-template-areas: "l r" "l2 r2"; }
+  .articles { grid-area: l; }
+  .lotd { grid-row: r / r2; }
+  .lotd-i { align-items: start; }
+}
+
+.cols h2 { margin: 0px; font-size: 1.5em; }
+
+.ublog .cols { display: block; }
+
+.articles-i > h2, .projects-i > h2 { padding-left: 1.5rem; }
+
+.index-list { list-style-type: "–  "; font-family: sans-serif; }
+
+.index-list > li { clear: both; border-top: solid 1px var(--c-index-list-divider); }
+
+.index-list > li > div { display: grid; grid-template-columns: min-content 1fr; }
+
+.index-list .date { float: right; color: var(--c-date); font-size: 0.835rem; padding-top: 0.2em; }
+
+.index-list a:link:not(.cat) { text-decoration: none; }
+
+.index-list a:visited:not(.cat) { text-decoration: none; }
+
+.index-list { grid-area: r; }
+
+.index-title { grid-column: 2; padding-left: 0.5ch; margin-right: 2em; }
+
+.best .index-title a { font-weight: bold; }
+
+.cat { padding: 0px 0.2em; display: inline-block; min-width: 11ch; text-align: center; margin-right: 0.4ch; font-family: sans-serif; text-decoration: none; grid-column: 1; align-self: start; color: inherit !important; }
+
+@media screen {
+  .cat { background-color: var(--c-cat-label); }
+  .cat-computing { background-color: var(--c-cat-label-computing); }
+  .cat-life { background-color: var(--c-cat-label-life); }
+  .cat-fiction { background-color: var(--c-cat-label-fiction); }
+  .cat-review { background-color: var(--c-cat-label-review); }
+  .cat-photos { background-color: var(--c-cat-label-photos); }
+}
+
+@media print {
+  .cat { color: var(--c-text) !important; }
+}
+
+.proj-list { }
+
+.proj-list li > div > a:link, .proj-list li > div > a:visited { padding: 0px 0.2em; display: inline-block; min-width: 11ch; text-align: center; margin-right: 0.4ch; text-decoration: none; grid-column: 1; align-self: start; }
+
+@media screen {
+  .proj-list li > div > a:link, .proj-list li > div > a:visited { background-color: var(--c-project-name-bg); color: var(--c-text) !important; }
+}
+
+.proj-desc { padding-left: 0.5ch; padding-right: 2em; grid-column: 2; }
+
+.projects-i { padding-bottom: 2rem; }
+
+.projects-i h2 { margin-bottom: 1rem; }
+
+.projects-i h3 { margin: 0px; font-size: 1em; padding-left: 2rem; }
+
+.proj-list { margin: 0px; }
+
+.projects { grid-area: l2; }
+
+.lotd-box { border: solid 1px var(--c-lotd-border); margin: 0px 0.25em 0.5em; padding: 0.5em; background-color: var(--c-lotd-bg); max-width: 30em; }
+
+.lotd-box > a:link { display: block; font-weight: bold; }
+
+.lotd-box > a:link, .lotd-box p a:link { color: var(--c-lotd-link); }
+
+.lotd-box > a:visited { display: block; font-weight: bold; }
+
+.lotd-box > a:visited, .lotd-box p a:visited { color: var(--c-lotd-visited); }
+
+.byline { font-size: 0.8em; }
+
+.lotd-box .byline + p { margin-top: 0.2em; padding-top: 0.2em; border-top: solid 1px var(--c-lotd-border); }
+
+.lotd-box p:last-child { margin-bottom: 0px; }
+
+.lotd-box .byline a:link, .lotd-box .byline a:visited { text-decoration: none; color: var(--c-lotd-byline-link); }
+
+.lotd-box .byline a:hover { color: var(--c-lotd-byline-hover); text-decoration: underline; }
+
+.lotd-box .date + .tags::before { content: " · "; }
+
+.lotd-boxes { display: flex; flex-flow: column wrap; margin-top: 1em; }
+
+.ublog .lotd-boxes { display: grid; grid-template-columns: repeat(auto-fit, 30em); justify-content: center; }
+
+.lotd-box:target { outline: dashed 3px var(--c-block); }
+
+.lotd-box h3 { font-size: 1em; margin: 0px; }
+
+h2 a:link, h2 a:visited { text-decoration: none; color: inherit !important; }
+
+.sl { display: flex; justify-content: space-between; align-items: center; }
+
+.sl-lhs { }
+
+.sl-rhs { text-align: right; font-size: 1rem; font-weight: normal; padding-right: 1em; color: var(--c-lotd-visited); }
+
+h2 .micro { float: right; display: inline-block; text-align: right; font-size: 1rem; vertical-align: middle; }
+
+.lpill { text-decoration: none; display: inline-block; color: var(--c-text); background-color: var(--c-lpill-bg); font-weight: normal; padding: 0px 0.3em; font-size: 0.8em; margin-left: 1ch; }
+
+.lpill span:first-child { display: none; }
+
+.lpill span:last-child { display: none; }
+
+.lotd-trailer { padding: 0px 0.8rem; font-size: 0.9em; }
+
+.lotd-trailer a:link, .lotd-trailer a:visited { color: var(--c-lotd-visited); text-decoration: none; }
+
+html:not(.sysarticle) article { font-family: serif; font-size: 1.125rem; }
+
+article h1 { font-family: inherit; }
+
+p, article li { text-align: justify; }
+
+header:not(.quiet) { border-top: solid 1em var(--c-block); }
+
+header { padding: 4px 8px; }
+
+html.content header { padding: 4px 1rem; }
+
+header nav > ul { list-style: none; margin: 0px; padding: 0px; }
+
+header nav > ul > li { display: inline-block; margin-right: 1em; }
+
+@media print {
+  header { display: none; }
+}
+
+footer { font-size: small; font-style: italic; text-align: right; margin: 0 var(--l-lgutter) 8px var(--l-lgutter); }
+
+html:not(.formal) footer { font-family: sans-serif; }
+
+.leftlinks { float: left; text-align: left; }
+
+.leftlinks ul, .leftlinks li { list-style: none; margin: 0px; padding: 0px; }
+
+.leftlinks ul li { float: left; padding-right: 1em; }
+
+@media print {
+  footer .leftlinks { display: none; }
+}
+
+.seriesbox-1 { background-color: var(--c-seriesbox); outline: solid 1em var(--c-seriesbox); }
+
+.seriesbox-cur > span { font-weight: bold; }
+
+.seriesbox ul { list-style: "–  "; }
+
+.wide-mode { display: none; }
+
+html.article:not(.formal) #narrow:target + #all main { max-width: 40em; }
+
+html.article:not(.formal) #narrow:target + #all .narrow-mode { display: none; }
+
+html.article:not(.formal) #narrow:target + #all .wide-mode { display: inline; }
+
+html.formal .narrow-mode { display: none; }
+
+@media screen {
+  .unpublished-notice { text-align: center; background-color: var(--c-unpublished-notice-bg); margin: 1em; padding: 0.5em; font-weight: bold; color: var(--c-unpublished-notice-text); }
+  .unpublished { background-color: var(--c-unpublished-bg); }
+  html.unpublished:not(.noinsignia) #all { background-image: url("bg2.svg"); }
+}
+
+@media print {
+  .unpublished-notice { display: none; }
+}
+
+#mobility-links { display: none; }
+
+@media only screen and (max-width: 850px) {
+  .index-list { margin-left: 0px; padding-left: 0px; list-style: none; }
+}
+
+@media only screen and (max-width: 600px) {
+  .narrow-mode, .wide-mode { display: none; }
+  .cat { font-size: 0.9em; padding: 0.111111em 0.2em; }
+  .index-list .date { float: none; margin-right: 0px; }
+  .cols { grid-template-areas: "l" "l2" "r" "r2"; }
+  #mobility-links { display: block; opacity: 0.6; text-align: center; }
+}
+
+.wrap { white-space: pre-wrap; }
+
+.centred-image { text-align: center; }
+
+figure:not(.for-table) { text-align: center; break-inside: avoid; }
+
+figcaption { margin: 0px auto; font-size: small; text-wrap: balance; text-align: center; }
+
+figure > table { margin: 0px auto; }
+
+table.l { text-align: left; }
+
+table.ugly, table.ugly td, table.ugly th { border: solid 1px var(--c-text); }
+
+table.uglyv th:first-child, table.uglyv td:first-child { border-right: solid 1px var(--c-text); }
+
+figure dl { text-align: justify; }
+
+.fignote { text-align: justify; display: block; max-width: 37em; margin: 0px auto; padding-bottom: 1em; }
+
+.cimg { max-width: 100%; text-align: center; }
+
+.cimg img { width: auto; max-height: 50vh; }
+
+pre, code { font-size: 1rem; }
+
+a img { border: 0px; }
+
+article a:link[href^="http"]:not(.nopfx)::before { content: "⏩︎"; display: inline-block; padding-right: 0.1ch; }
+
+article a:link[href^="https://github.com/"]:not(.nopfx)::before, a:link[href^="https://bitbucket.org/"]:not(.nopfx)::before { content: "⎌ "; display: inline-block; padding-right: 0.4ch; }
+
+article a:link[href$=".pdf"]:not(.nopfx)::before { content: "❏ "; display: inline-block; padding-right: 0.4ch; }
+
+article a:link[href$=".tar.gz"]:not(.nopfx)::before, a:link[href^="ftp:"]:not(.nopfx)::before { content: "▽"; display: inline-block; padding-right: 0.4ch; }
+
+dt { font-weight: bold; }
+
+html.comments-page main > h1 { margin-bottom: 0px; }
+
+.comment-list { padding: 1rem 0rem 0px; }
+
+.comment { border: solid 1px var(--c-lotd-border); margin: 0px 0.25em 0.5em 0px; padding: 0.5em; background-color: var(--c-lotd-bg); }
+
+.comment-header { font-weight: bold; }
+
+.required { font-weight: bold; }
+
+aside { padding: 0px 3em; }
+------MultipartBoundary--bhoCLGjtudkk9BpelXFOgIRiyoxXcbunAmjc29edhj------
