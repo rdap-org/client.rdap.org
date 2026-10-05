@@ -26,7 +26,16 @@ scripts:
         </select>
       </div>
 
-      <input class="form-control" id="object" type="text" name="object" placeholder="example.com" onkeyup="guessType(this.value)" required>
+      <input
+        class="form-control"
+        id="object"
+        type="text"
+        name="object"
+        placeholder="example.com"
+        autocorrect="off"
+        spellcheck="false"
+        autofocus
+        required>
 
       <div class="input-group-append">
         <input id="button" type="button" value="Submit" onclick="doQuery()" class="btn btn-primary" disabled>
@@ -59,6 +68,13 @@ scripts:
 </ul>
 
 <script>
+  const input = document.getElementById("object");
+
+  input.addEventListener("input", function(e) {
+    e.preventDefault();
+    guessType(input.value);
+  });
+
   loadRegistries();
 
   if ("client.rdap.org" == document.location.hostname.toLowerCase()) {
