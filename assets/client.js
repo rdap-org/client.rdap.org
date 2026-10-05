@@ -1168,9 +1168,10 @@ function guessType(object) {
 
 // set the type of the object to be queried
 function setType(type) {
- var select = document.getElementById('type');
- for (var i = 0 ; i < select.options.length ; i++) if (select.options.item(i).value == type) {
+  var select = document.getElementById('type');
+  for (var i = 0 ; i < select.options.length ; i++) if (select.options.item(i).value == type) {
     select.selectedIndex = i;
+    updatePlaceHolder(type);
     break;
   }
 }
